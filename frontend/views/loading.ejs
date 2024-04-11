@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Game Loading</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <link rel="stylesheet" href="/css/loading.css" />
+    </head>
+<body>
+    <div class="bg"> 
+        <div>
+            Another World Word wIDE!
+        </div>
+
+        <div id="myProgress">
+            <div id="myBar"></div>
+          </div>
+            
+            
+
+    </div>
+
+    <div class="container">
+        <div id="question">Pertanyaan nya adalah wkwkwwkwkw</div>
+        <h2 id="timer" class="hidden"></h2>
+        <div id="input-box" class="input-box">
+            <label for="answer">Jawaban kecohan :</label>
+            <input class="kecohan" type="text" placeholder="..." name="answer">
+            <button id="send">Send !</button>
+         </div>
+         <div id="answer-box" class ="answer-box hidden">
+            <button>aaa</button>
+            <button>aaa</button>
+            <button>aaaaas</button>
+            <button>aaa</button>
+            <button>aaa</button>
+         </div>
+         <div id="score">
+
+         </div>
+        
+    </div>
+
+    
+    
+    </body>
+    </html>
+
+    <script>
+        function sleepFor(sleepDuration){
+        var now = new Date().getTime();
+        while(new Date().getTime() < now + sleepDuration){ 
+            /* Do nothing */ 
+    }
+}
+    </script>
+
+    <script>
+        data = <%-JSON.stringify(peserta)%>;
+        var myId = ""
+        const my_uuid = localStorage.getItem("uuid");
+        
+            if (my_uuid == null){
+                let myuuid = generateUUID();
+                
+                localStorage.setItem("uuid", myuuid);
+                myId = myuuid
+            } else {
+                myId = my_uuid
+            } 
+        var app = {
+        socket: null,
+        connect: function() {
+            var self = this;
+            if( self.socket ) {
+                self.socket.destroy();
+                delete self.socket;
+                self.socket = null;
+            }
+            this.socket = io.connect({
+                reconnection: true,
+                reconnectionDelay: 1000,
+                reconnectionDelayMax : 5000,
+                reconnectionAttempts: Infinity
+            } );
+            this.socket.on( 'connect', function () {
+                             
+                console.log( 'connected to server' );
+            } );
+            this.socket.on( 'disconnect', function () {
+                console.log( 'disconnected from server' );
+                window.setTimeout( 'app.connect()', 5000 );
+            } );
+
+            this.socket.on( 'timer', function (msg) {
+                console.log(msg)
+                $( "#timer" ).removeClass( "hidden" )
+                $( "#timer" ).text(msg)
+                
+            } );
+            this.socket.on( 'receive soal', function (msg) {
+                $("#question").text(msg)
+                console.log(msg)
+                           
+            } );
+
+            this.socket.on( 'receive kecohan', function (msg) {
+                console.log(msg)
+
+                $("#answer-box").removeClass("hidden")
+                $("#answer-box").empty()
+                for (i = 0; i < msg.length; i ++){
+                    $("#answer-box").append(`<button onclick="myFunction('${msg[i][1]}')">${msg[i][0]}</button>`)
+                }
+                              
+            } );
+            this.socket.on( 'send score', function (msg) {
+                $("#input-box").addClass("remove")
+                $("#answer-box").addClass("remove")
+                $("#question").addClass("remove")
+                $("#timer").addClass("remove")
+                sleepFor(2000);
+                $("#score").text(json.stringify(msg))
+                
+
+                              
+            } );
+            
+
+
+            
+        }
+        } // ap
+        
+        console.log(data)
+         $( document ).ready(function() {
+
+            //INIT
+            socket = app.connect()  
+
+            app.socket.emit('start-session', {  sessionId: myId })
+
+            //INIT
+            var i = 0;
+            if (i == 0) {
+                i = 1;
+                var elem = document.getElementById("myBar");
+                var width = 1;
+                var id = setInterval(frame, 10);
+                function frame() {
+                if (width >= 100) {
+                    clearInterval(id);
+                    i = 0;
+                    $(".bg").addClass("remove")
+                    console.log(data[myId].host)
+                    if (data[myId].host){
+                        app.socket.emit('start fase 1', "aa");
+                    }
+                    
+                } else {
+                    width++;
+                    elem.style.width = width + "%";
+                }
+                }
+            }
+
+            $("#send").on( "click", function() {   
+                send_kecohan =  $(".kecohan").val()
+                console.log(send_kecohan)   
+                data = {
+                    from : myId,
+                    kecohan : send_kecohan
+                }    
+            
+                app.socket.emit('send question', data);
+            });
+
+           
+            
+         })
+
+         function myFunction(orang) {
+            console.log(orang)
+            data ={
+                from:myId,
+                answer:orang
+            }
+            app.socket.emit('send answer', data);
+        }
+
+         
+    </script>

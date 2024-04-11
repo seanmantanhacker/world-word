@@ -1,0 +1,39 @@
+body, html {
+    height: 100%;
+  }
+  
+  .bg {
+    /* The image used */
+    background-image: url("/image/loading.jpg");
+  
+    /* Full height */
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    z-index: 100;
+  
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  #myProgress {
+    width: 100%;
+    background-color: grey;
+  }
+  
+  #myBar {
+    width: 1%;
+    height: 30px;
+    background-color: green;
+  }
+
+  .remove {
+    display: none;
+    visibility: hidden;
+  }
+
+  .hidden {
+    visibility: hidden;
+  }

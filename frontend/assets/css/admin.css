@@ -1,0 +1,151 @@
+.icon {
+   cursor: pointer;
+}
+
+.delegate-to-return{
+   color: rgb(243, 24, 24)
+}
+
+.select-placeholder{
+   color:#999 !important;
+}
+
+.select-placeholder option{
+   color: #000 !important;
+}
+
+
+
+/* Tick icon animation */
+.wrapper{
+   display:flex;
+   justify-content:center;
+   align-items:center;
+}
+.checkmark__circle{
+   stroke-dasharray: 166;
+   stroke-dashoffset: 166;
+   stroke-width: 2;
+   stroke-miterlimit: 10;
+   stroke: #7ac142;
+   fill: none;
+   animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards
+}
+.checkmark{
+   width: 56px;
+   height: 56px;
+   border-radius: 50%;
+   display: block;
+   stroke-width: 2;
+   stroke: #fff;
+   stroke-miterlimit: 10;
+   margin: 10% auto;
+   box-shadow: inset 0px 0px 0px #7ac142;
+   animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both
+}
+.checkmark__check{
+   transform-origin: 50% 50%;
+   stroke-dasharray: 48;
+   stroke-dashoffset: 48;
+   animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards
+}
+@keyframes stroke{
+   100%{
+       stroke-dashoffset: 0
+   }
+}
+@keyframes scale{
+   0%, 100%{
+       transform: none
+   }
+   50%{
+       transform: scale3d(1.1, 1.1, 1)
+   }
+}
+@keyframes fill{
+   100%{
+       box-shadow: inset 0px 0px 0px 30px #7ac142
+   }
+}
+
+/* crossmark animation */
+.crossmark__circle.animateElement {
+   stroke-dasharray: 166;
+   stroke-dashoffset: 166;
+   stroke-width: 2;
+   stroke-miterlimit: 10;
+   stroke: #ff0000;
+   fill: none;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+ }
+ 
+ .crossmark.animateElement {
+   width: 56px;
+   height: 56px;
+   border-radius: 50%;
+   display: block;
+   stroke-width: 2;
+   stroke: #ff0000;
+   stroke-miterlimit: 10;
+   margin: 10% auto;
+   box-shadow: inset 0px 0px 0px #ff0000;
+   animation: fillred .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+ }
+ 
+ .crossmark__check.animateElement {
+   transform-origin: 50% 50%;
+   stroke-dasharray: 48;
+   stroke-dashoffset: 48;
+   animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+ }
+ 
+ .cross__path.animateElement {
+   stroke: #ffffff;
+   stroke-dasharray: 48;
+   stroke-dashoffset: 48;
+   transform-origin: 50% 50% 0;
+ }
+ .cross__path--right.animateElement {
+   animation: 0.3s ease 0.8s normal forwards 1 running stroke;
+ }
+ .cross__path--left.animateElement {
+   animation: 1s ease 0.8s normal forwards 1 running stroke;
+ }
+ @keyframes fillred {
+   100% {
+     box-shadow: inset 0px 0px 0px 30px #ff0000;
+   }
+   
+ }
+ @keyframes stroke {
+   100% {
+     stroke-dashoffset: 0;
+   }
+ }
+
+ .check-danger.form-check-input:checked {
+    background-color: #dc3545;
+    border-color: #dc3545;
+ }
+
+ .check-danger.form-check-input:focus {
+    border-color: #bb2d3b;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(225, 83, 97, .5);
+ }
+
+ .form-switch .check-danger.form-check-input:focus {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23bb2d3b'/%3e%3c/svg%3e");
+ }
+
+ .fixed-size-modal-body{
+   max-height: 70vh;
+   overflow-y: auto;
+ }
+
+
+ th {
+   padding-right :10px !important;
+   margin-right: 30px;
+   min-width: 60px;
+ }
