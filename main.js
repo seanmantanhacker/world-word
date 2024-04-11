@@ -19,6 +19,9 @@ app.use(function (req, res, next) {
    next();
 });
 
+const TIME_SEND_KECOHAN = 15;
+const TIME_SEND_ANSWER = 12;
+
 var set_question ={
    1: {
       q1: "Siapakah penemu bola lampu",
@@ -27,9 +30,12 @@ var set_question ={
       q2: "aaaaaaaaaaaaa",
       a2 : "realllll",
       f2 : "fakee",
-      a3 : "Gunung tertinggi di dunia",
+      q3 : "Gunung tertinggi di dunia",
       a3: "Bromo",
-      f3: "Cikurai"
+      f3: "Cikurai",
+      q4 : "soal no 4",
+      a4: "ini betul",
+      f4: "ini salah"
    },
    2: {
       q1: "Siapakah penemu bola lampu",
@@ -72,13 +78,6 @@ app.get('/', (req, res) => {
     });
  })
 
- app.get('/main', (req, res) => {
-   console.log(peserta)
-   res.render('loading', {
-      peserta: peserta,
-    });
- })
-
  io.on('connection', (socket) => {
    console.log('a user connected');
    console.log(socket.rooms)
@@ -88,25 +87,20 @@ app.get('/', (req, res) => {
    })
 
    socket.on('send question',(msg )=>{
-      console.log(msg)
-      console.log(peserta)
+   
       peserta[msg.from].answer = msg.kecohan
-      console.log(peserta)
 
    })
 
    socket.on('send answer',(msg )=>{
-      console.log(msg)
+      
       peserta[msg.from].pilihan = msg.answer
-      console.log(peserta)
-
-
    })
 
    socket.on('start fase 1',(msg )=>{
-      console.log(msg)
+      
       io.emit('receive soal', set_soal.q1);
-      i = 20;
+      i = TIME_SEND_KECOHAN ;
       myvar = setInterval(function(){ 
          io.emit('timer',i );
          i--;
@@ -130,32 +124,284 @@ app.get('/', (req, res) => {
             helper=[]
             
             io.emit('receive kecohan', arrayOfAnswer);
-            i = 12;
-      myvar2 = setInterval(function(){ 
-         io.emit('timer',i );
-         i--;
-         if (i< 0){
-            clearInterval(myvar2);
-            
-            io.emit('send score', peserta);
-            
-         }
-      },1000) //logs hi every second
+            i = TIME_SEND_ANSWER;
+            myvar2 = setInterval(function(){ 
+               io.emit('timer',i );
+               i--;
+               if (i< 0){
+                  clearInterval(myvar2);
+                  console.log("debug here\n")
+
+                  console.log(peserta)
+                  Object.keys(peserta).forEach(key => {   
+                     peserta[key].addj = 0  
+                     pilihan = peserta[key].pilihan
+                     if (pilihan == "true"){
+                        peserta[key].pilihanText = set_soal.a1 
+                     } else if (pilihan == "bot"){
+                        peserta[key].pilihanText = set_soal.f1
+                     } else {
+                        peserta[key].pilihanText = peserta[pilihan].answer
+                     }
+                  });
+                  Object.keys(peserta).forEach(key => {
+               
+                     pilihan = peserta[key].pilihan
+                     if (pilihan == "true"){
+                        peserta[key].score = peserta[key].score + 100
+                        peserta[key].addj = 100 
+                     } else if (pilihan == "bot") {
+                        peserta[key].score = peserta[key].score + -10
+                        peserta[key].addj = -10
+                     } else {
+                        peserta[pilihan].score = peserta[pilihan].score + 20
+                        peserta[pilihan].addj = peserta[pilihan].addj + 20
+                     }
+              
+                  });
+                  console.log("SEND SCORE")
+                  
+                  t = {
+                     msg : peserta,
+                     round : 1
+                  }
+                  io.emit('send score', t);
+                  
+               }
+            },1000) //logs hi every second
          }
       },1000) //logs hi every second
 
    })
 
    socket.on('start fase 2',(msg )=>{
-      console.log(msg)
-      i = 30;
+      
+      io.emit('receive soal', set_soal.q2);
+      i = TIME_SEND_KECOHAN ;
       myvar = setInterval(function(){ 
          io.emit('timer',i );
          i--;
          if (i< 0){
             clearInterval(myvar);
+            arrayOfAnswer = []
+            helper =[]
+            Object.keys(peserta).forEach(key => {
+               
+               helper.push(peserta[key].answer)
+               helper.push(key)
+               arrayOfAnswer.push(helper)
+               helper = []
+               peserta[key].pilihan = "bot"
+        
+            });
+            helper.push(set_soal.a2,"true")
+            arrayOfAnswer.push(helper)
+            helper = []
+            helper.push(set_soal.f2,"bot")
+            arrayOfAnswer.push(helper)
+            helper=[]
+
             
-            io.emit('broadcast score', "AA");
+            io.emit('receive kecohan', arrayOfAnswer);
+            i = TIME_SEND_ANSWER;
+            myvar2 = setInterval(function(){ 
+               io.emit('timer',i );
+               i--;
+               if (i< 0){
+                  clearInterval(myvar2);
+                  console.log("debug here\n")
+
+                  console.log(peserta)
+                  Object.keys(peserta).forEach(key => {   
+                     peserta[key].addj = 0  
+                     pilihan = peserta[key].pilihan
+                     if (pilihan == "true"){
+                        peserta[key].pilihanText = set_soal.a2 
+                     } else if (pilihan == "bot"){
+                        peserta[key].pilihanText = set_soal.f2
+                     } else {
+                        peserta[key].pilihanText = peserta[pilihan].answer
+                     }
+                  });
+                  Object.keys(peserta).forEach(key => {
+               
+                     pilihan = peserta[key].pilihan
+                     if (pilihan == "true"){
+                        peserta[key].score = peserta[key].score + 100
+                        peserta[key].addj = 100 
+                     } else if (pilihan == "bot") {
+                        peserta[key].score = peserta[key].score + -10
+                        peserta[key].addj = -10
+                     } else {
+                        peserta[pilihan].score = peserta[pilihan].score + 20
+                        peserta[pilihan].addj = peserta[pilihan].addj + 20
+                     }
+              
+                  });
+
+                  t = {
+                     msg : peserta,
+                     round : 2
+                  }
+
+                  io.emit('send score', t);
+                  
+               }
+            },1000) //logs hi every second
+         }
+      },1000) //logs hi every second
+
+   })
+
+   socket.on('start fase 3',(msg )=>{
+      
+      io.emit('receive soal', set_soal.q3);
+      i = TIME_SEND_KECOHAN ;
+      myvar = setInterval(function(){ 
+         io.emit('timer',i );
+         i--;
+         if (i< 0){
+            clearInterval(myvar);
+            arrayOfAnswer = []
+            helper =[]
+            Object.keys(peserta).forEach(key => {
+               
+               helper.push(peserta[key].answer)
+               helper.push(key)
+               arrayOfAnswer.push(helper)
+               helper = []
+        
+            });
+            helper.push(set_soal.a3,"true")
+            arrayOfAnswer.push(helper)
+            helper = []
+            helper.push(set_soal.f3,"bot")
+            arrayOfAnswer.push(helper)
+            helper=[]
+            
+            io.emit('receive kecohan', arrayOfAnswer);
+            i = TIME_SEND_ANSWER;
+            myvar2 = setInterval(function(){ 
+               io.emit('timer',i );
+               i--;
+               if (i< 0){
+                  clearInterval(myvar2);
+                  console.log("debug here\n")
+
+                  console.log(peserta)
+                  Object.keys(peserta).forEach(key => {   
+                     peserta[key].addj = 0  
+                     pilihan = peserta[key].pilihan
+                     if (pilihan == "true"){
+                        peserta[key].pilihanText = set_soal.a3
+                     } else if (pilihan == "bot"){
+                        peserta[key].pilihanText = set_soal.f3
+                     } else {
+                        peserta[key].pilihanText = peserta[pilihan].answer
+                     }
+                  });
+                  Object.keys(peserta).forEach(key => {
+               
+                     pilihan = peserta[key].pilihan
+                     if (pilihan == "true"){
+                        peserta[key].score = peserta[key].score + 100
+                        peserta[key].addj = 100 
+                     } else if (pilihan == "bot") {
+                        peserta[key].score = peserta[key].score + -10
+                        peserta[key].addj = -10
+                     } else {
+                        peserta[pilihan].score = peserta[pilihan].score + 20
+                        peserta[pilihan].addj = peserta[pilihan].addj + 20
+                     }
+              
+                  });
+
+                  t = {
+                     msg : peserta,
+                     round : 3
+                  }
+
+                  io.emit('send score', t);
+                  
+               }
+            },1000) //logs hi every second
+         }
+      },1000) //logs hi every second
+
+   })
+
+   socket.on('start fase 4',(msg )=>{
+      
+      io.emit('receive soal', set_soal.q4);
+      i = TIME_SEND_KECOHAN ;
+      myvar = setInterval(function(){ 
+         io.emit('timer',i );
+         i--;
+         if (i< 0){
+            clearInterval(myvar);
+            arrayOfAnswer = []
+            helper =[]
+            Object.keys(peserta).forEach(key => {
+               
+               helper.push(peserta[key].answer)
+               helper.push(key)
+               arrayOfAnswer.push(helper)
+               helper = []
+        
+            });
+            helper.push(set_soal.a4,"true")
+            arrayOfAnswer.push(helper)
+            helper = []
+            helper.push(set_soal.f4,"bot")
+            arrayOfAnswer.push(helper)
+            helper=[]
+            
+            io.emit('receive kecohan', arrayOfAnswer);
+            i = TIME_SEND_ANSWER;
+            myvar2 = setInterval(function(){ 
+               io.emit('timer',i );
+               i--;
+               if (i< 0){
+                  clearInterval(myvar2);
+                  console.log("debug here\n")
+
+                  console.log(peserta)
+                  Object.keys(peserta).forEach(key => {   
+                     peserta[key].addj = 0  
+                     pilihan = peserta[key].pilihan
+                     if (pilihan == "true"){
+                        peserta[key].pilihanText = set_soal.a4
+                     } else if (pilihan == "bot"){
+                        peserta[key].pilihanText = set_soal.f4
+                     } else {
+                        peserta[key].pilihanText = peserta[pilihan].answer
+                     }
+                  });
+                  Object.keys(peserta).forEach(key => {
+               
+                     pilihan = peserta[key].pilihan
+                     if (pilihan == "true"){
+                        peserta[key].score = peserta[key].score + 100
+                        peserta[key].addj = 100 
+                     } else if (pilihan == "bot") {
+                        peserta[key].score = peserta[key].score + -10
+                        peserta[key].addj = -10
+                     } else {
+                        peserta[pilihan].score = peserta[pilihan].score + 20
+                        peserta[pilihan].addj = peserta[pilihan].addj + 20
+                     }
+              
+                  });
+
+                  t = {
+                     msg : peserta,
+                     round : 4
+                  }
+
+                  io.emit('send score', t);
+                  
+               }
+            },1000) //logs hi every second
          }
       },1000) //logs hi every second
 
@@ -164,8 +410,7 @@ app.get('/', (req, res) => {
    socket.on('join lobby', (msg) => {
       
       var assign_id = Object.keys(peserta).length;
-      console.log(assign_id)
-      console.log(socket.id)
+      
       if (assign_id == 0){
          peserta[msg.from] = {} 
          peserta[msg.from]["name"] = msg.uname
@@ -200,6 +445,10 @@ app.get('/', (req, res) => {
          }
       },1000) //logs hi every second
 
+    })
+
+    socket.on('game finish', (msg) => {
+      peserta = {}
     })
 
  });

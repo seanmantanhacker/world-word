@@ -37,3 +37,7 @@ body, html {
   .hidden {
     visibility: hidden;
   }
+
+  .button-choose {
+    background-color: aqua;
+  }

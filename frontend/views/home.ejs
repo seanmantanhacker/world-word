@@ -10,7 +10,7 @@
     
     <link rel="stylesheet" href="/css/home.css" />
     </head>
-    <body>
+    <body class="bg2">
         <div class="container">
             <div class="panel panel-default">
               <div class="panel-heading">
@@ -57,6 +57,7 @@
 </script>
 <script>
     var myId = ""
+    var start_able = true
     var app = {
         socket: null,
         connect: function() {
@@ -141,9 +142,13 @@
             app.socket.emit('join lobby', data);
         });
 
-        $( "#start-button" ).on( "click", function() {            
+        $( "#start-button" ).on( "click", function() {       
+            if (start_able){
+                start_able = false
+                app.socket.emit('game start', "null");
+            }    
             
-            app.socket.emit('game start', "null");
+            
         });
     });
 

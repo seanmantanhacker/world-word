@@ -1,3 +1,32 @@
+body, html {
+    height: 100%;
+  }
 .hidden {
     visibility: hidden;
 }
+.container {
+    margin: auto;
+    width: 90%;
+    border: 3px solid green;
+    padding: 10px;
+}
+
+button {
+    margin: 6px;
+}
+
+.bg2 {
+    /* The image used */
+    background-image: url("/image/a.jpg");
+  
+    /* Full height */
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    z-index: -99;
+  
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }

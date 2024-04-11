@@ -26,11 +26,13 @@
 
     <div class="container">
         <div id="question">Pertanyaan nya adalah wkwkwwkwkw</div>
+        <div class="remove" id="info"></div>
         <h2 id="timer" class="hidden"></h2>
         <div id="input-box" class="input-box">
             <label for="answer">Jawaban kecohan :</label>
             <input class="kecohan" type="text" placeholder="..." name="answer">
             <button id="send">Send !</button>
+            <input class="kunci" type="text" disabled>
          </div>
          <div id="answer-box" class ="answer-box hidden">
             <button>aaa</button>
@@ -39,8 +41,17 @@
             <button>aaa</button>
             <button>aaa</button>
          </div>
-         <div id="score">
+         <div id="score" class="hidden">
+            <table id="table-score">
+                <tr>
+                  <th>Name</th>
+                  <th>Answer</th>
 
+                  <th>score</th>
+                </tr>
+               
+                
+              </table>
          </div>
         
     </div>
@@ -51,16 +62,36 @@
     </html>
 
     <script>
-        function sleepFor(sleepDuration){
-        var now = new Date().getTime();
-        while(new Date().getTime() < now + sleepDuration){ 
-            /* Do nothing */ 
-    }
-}
+        // function sleepFor(sleepDuration){
+        // var now = new Date().getTime();
+        // while(new Date().getTime() < now + sleepDuration){ 
+        //     /* Do nothing */ 
+        // }
+        // }
+        function shuffle(array) {
+            let currentIndex = array.length;
+
+            // While there remain elements to shuffle...
+            while (currentIndex != 0) {
+
+                // Pick a remaining element...
+                let randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+
+                // And swap it with the current element.
+                [array[currentIndex], array[randomIndex]] = [
+                array[randomIndex], array[currentIndex]];
+            }
+            return 0;
+            }
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
     </script>
 
     <script>
-        data = <%-JSON.stringify(peserta)%>;
+        data_peserta = <%-JSON.stringify(peserta)%>;
+        set_q = <%-JSON.stringify(setQuestion)%>;
         var myId = ""
         const my_uuid = localStorage.getItem("uuid");
         
@@ -104,39 +135,92 @@
             } );
             this.socket.on( 'receive soal', function (msg) {
                 $("#question").text(msg)
+                $("#input-box").removeClass("remove")
+                $("#answer-box").addClass("remove")
+                $("#question").removeClass("remove")
+                $("#timer").removeClass("remove")
+                $("#score").addClass("hidden")
+                $("#info").addClass("remove")
                 console.log(msg)
                            
             } );
 
             this.socket.on( 'receive kecohan', function (msg) {
                 console.log(msg)
-
-                $("#answer-box").removeClass("hidden")
+                $("#input-box").addClass("remove")
+                $("#answer-box").removeClass("remove hidden")
                 $("#answer-box").empty()
+                new_array = shuffle(msg)
+                console.log(new_array)
                 for (i = 0; i < msg.length; i ++){
-                    $("#answer-box").append(`<button onclick="myFunction('${msg[i][1]}')">${msg[i][0]}</button>`)
+                    if (msg[i][1] == myId){
+                        continue
+                    }
+                    $("#answer-box").append(`<button id="button${i}" onclick="myFunction('${msg[i][1]}','button${i}')">${msg[i][0]}</button>`)
                 }
                               
             } );
-            this.socket.on( 'send score', function (msg) {
+            this.socket.on( 'send score', async function (msg) {
+                
+                ronde = msg.round
                 $("#input-box").addClass("remove")
                 $("#answer-box").addClass("remove")
                 $("#question").addClass("remove")
                 $("#timer").addClass("remove")
-                sleepFor(2000);
-                $("#score").text(json.stringify(msg))
+                $("#score").removeClass("hidden remove")
+                $("#info").removeClass("remove hidden")
+                console.log("Send Score 3")
+                msg_ronde = ("a" + ronde)
+                $("#info").text("Jawaban yang Benar adalah : " + set_q[msg_ronde])
+                await sleep(3000); 
+                console.log(msg)
+                console.log("asd")
+                list_score = msg.msg
+                
+                var length = Object.keys(list_score).length;
+                $("#table-score").find("tr:gt(0)").remove();
+                
+                    console.log("done")
+                    await sleep(1000)
+                for (var i = 0; i < length ; i++) {
+                    data = list_score[Object.keys(list_score)[i]];
+                    nama = data.name
+                    pilihanText = data.pilihanText
+                    score = data.score
+                    $('#table-score tbody tr:last').after(`<tr>
+                        <th>${nama}</th>
+                        <th>${pilihanText}</th>
+                        <th>${score}</th>
+                    </tr>`);
+                    console.log("done")
+                    await sleep(1000)
+                }
                 
 
-                              
+                await sleep(3000); 
+                
+                if (data_peserta[myId].host){
+                    if (ronde == 4){
+                        app.socket.emit('game finish', null);
+                        //finish
+                        window.location.href = "/"
+                    }
+                    mess = "start fase " + (ronde + 1)
+                    app.socket.emit(mess, "aa");
+                } else {
+                    if (ronde == 4){
+                        //finish
+                        window.location.href = "/"
+                    }
+                }
+                
+                          
             } );
-            
-
-
             
         }
         } // ap
         
-        console.log(data)
+       
          $( document ).ready(function() {
 
             //INIT
@@ -150,14 +234,15 @@
                 i = 1;
                 var elem = document.getElementById("myBar");
                 var width = 1;
-                var id = setInterval(frame, 10);
+                var id = setInterval(frame, 100);
                 function frame() {
+                
                 if (width >= 100) {
                     clearInterval(id);
                     i = 0;
                     $(".bg").addClass("remove")
-                    console.log(data[myId].host)
-                    if (data[myId].host){
+                    console.log(data_peserta[myId].host)
+                    if (data_peserta[myId].host){
                         app.socket.emit('start fase 1', "aa");
                     }
                     
@@ -177,19 +262,33 @@
                 }    
             
                 app.socket.emit('send question', data);
+                $(".kecohan").val("")
+                $(".kunci").val(send_kecohan)
+                
             });
 
            
             
          })
 
-         function myFunction(orang) {
+         function myFunction(orang,buttonId) {
             console.log(orang)
-            data ={
+            var assign_peserta= Object.keys(data_peserta).length;
+            console.log(assign_peserta)
+            for (i = 0 ; i < assign_peserta+2 ; i++){
+                word = "button" + i
+                console.log(word)
+                if (word == buttonId){
+                    $('#'+word).addClass("button-choose")
+                } else {
+                    $('#'+word).removeClass("button-choose")
+                }
+            }
+            data2 ={
                 from:myId,
                 answer:orang
             }
-            app.socket.emit('send answer', data);
+            app.socket.emit('send answer', data2);
         }
 
          
