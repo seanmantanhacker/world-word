@@ -21,37 +21,14 @@ app.use(function (req, res, next) {
 
 const TIME_SEND_KECOHAN = 15;
 const TIME_SEND_ANSWER = 12;
-
-var set_question ={
-   1: {
-      q1: "Siapakah penemu bola lampu",
-      a1 : "Thomas alva edison",
-      f1 : "James Bowman",
-      q2: "aaaaaaaaaaaaa",
-      a2 : "realllll",
-      f2 : "fakee",
-      q3 : "Gunung tertinggi di dunia",
-      a3: "Bromo",
-      f3: "Cikurai",
-      q4 : "soal no 4",
-      a4: "ini betul",
-      f4: "ini salah"
-   },
-   2: {
-      q1: "Siapakah penemu bola lampu",
-      a1 : "Thomas alva edison",
-      f1 : "James Bowman",
-      q2: "aaaaaaaaaaaaa",
-      a2 : "realllll",
-      f2 : "fakee",
-      a3 : "Gunung tertinggi di dunia",
-      a3: "Bromo",
-      f3: "Cikurai"
-
-   }
+const set_question = config.set_question
+function getRandomNumber(min, max) {
+   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-set_soal = set_question[1]
+var randomNumber = getRandomNumber(1, 32);
+
+set_soal = set_question[randomNumber]
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -74,7 +51,7 @@ app.get('/', (req, res) => {
    console.log(peserta)
    res.render('loading', {
       peserta: peserta,
-      setQuestion : set_question["1"]
+      setQuestion : set_soal
     });
  })
 

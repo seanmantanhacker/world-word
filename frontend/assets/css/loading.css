@@ -79,6 +79,9 @@ body, html {
     font-size: 1em;
     
   }
+  #timer {
+    font-size: 1.8em !important;
+  }
 
   #myProgress {
     width: 90%;
@@ -132,9 +135,15 @@ body, html {
     padding: 30px 2px 30px 2px;
   }
 
-  #score, #info{
+  #score{
     background-color: rgb(94, 93, 92,0.3);
     color: antiquewhite;
+  }
+
+  #info {
+    background-color: rgba(161, 150, 139, 0.3);
+    color: antiquewhite;
+    padding : 10px;
   }
 
   table, th, td {
@@ -150,9 +159,16 @@ body, html {
   }
 
   .red {
+    
     color: red;
   }
 
   .green {
     color: greenyellow;
+  }
+
+  .big-text {
+    font-size: 2em;
+    color: rgb(23, 38, 33);
+    background-color: rgb(207, 185, 159,0.6) !important;
   }

@@ -10,6 +10,11 @@
     <script src="/socket.io/socket.io.js"></script>
     
     <link rel="stylesheet" href="/css/home.css" />
+    <audio id="music1" loop >
+        <source src="/music/warrior_30sec-intro-192837.mp3">
+        Your browser does not support the audio element.
+    </audio>
+    
     </head>
     <body class="bg2">
         <div class="container">
@@ -63,6 +68,7 @@
 <script>
     var myId = ""
     var start_able = true
+    var audio1 = document.getElementById("music1");
     var app = {
         socket: null,
         connect: function() {
@@ -110,6 +116,7 @@
 
             this.socket.on( 'timer game start', function (msg) {
                 console.log(msg)
+                
                 $( "#timer" ).removeClass( "hidden" )
                 $( "#timer" ).text(msg)
                 
@@ -124,6 +131,7 @@
     
     // A $( document ).ready() block.
     $( document ).ready(function() {
+             
         const my_uuid = localStorage.getItem("uuid");
         
         if (my_uuid == null){
@@ -142,11 +150,13 @@
                 from : myId,
                 uname : uname
             }     
+            audio1.play();
             app.socket.emit('join lobby', data);
         });
 
         $( "#start-button" ).on( "click", function() {       
             if (start_able){
+                audio1.pause()
                 start_able = false
                 app.socket.emit('game start', "null");
             }    
