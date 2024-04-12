@@ -2,8 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
     <title>Game Lobby</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
@@ -12,26 +13,30 @@
     </head>
     <body class="bg2">
         <div class="container">
-            <div class="panel panel-default">
-              <div class="panel-heading">
+            <div class="panel panel-default center">
+              <div class="panel-heading ">
                 <h3 class="panel-title">Game Lobby</h3> 
                 <h2 id="timer" class="hidden"></h2>
               </div>
-              <div class="panel-body">
-                <ul class="list-group">
+              <div id="list-group" class="center">
+                
                     <% for (i =0 ; i < Object.keys(peserta).length; i++) { %>
-                    <li class="list-group-item"><%=peserta[Object.keys(peserta)[i]].name;%></li>
+                        <button class="center-button"><%=peserta[Object.keys(peserta)[i]].name;%></button>
+                
                     <% }%>
                     
-                </ul>
+                
               </div>
             </div>
-            <div class="username">
+            <div class="username center">
                 <label for="uname">Username</label>
                 <input class="form-control" type="text" placeholder="Enter Username" name="uname" required>
              </div>
-            <button id="join-button" type="button">Join Lobby !</button>
-            <button id="start-button" class="hidden" type="button">START !</button>
+             <div class="center">
+                <button id="join-button" class="center-button2" type="button">Join Lobby !</button>
+                <button id="start-button" class="remove center-button2" type="button">START !</button>
+             </div>
+            
         </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     
@@ -82,22 +87,20 @@
                 window.setTimeout( 'app.connect()', 5000 );
             } );
             this.socket.on( 'join lobby', function (msg) {
-                console.log(msg)
-                console.log(msg.assignUser)
-                console.log(app.socket.id)
+                
                 if (msg.assignUser == myId){
                     $( "#join-button" ).off();
-                    $("#join-button").addClass("hidden");
+                    $("#join-button").addClass("remove");
                 }
-                $( ".list-group" ).empty()
+                $( "#list-group" ).empty()
                 pesertaa = msg.peserta
                 for (i =0 ; i < Object.keys(pesertaa).length; i++){
-
-                    $( ".list-group" ).append(`<li class="list-group-item">${pesertaa[Object.keys(pesertaa)[i]].name}</li>`);
+                    
+                    $( "#list-group" ).append(`<button class="center-button">${pesertaa[Object.keys(pesertaa)[i]].name}</button>`);
                 }
             
                 if (pesertaa[myId].host){
-                    $( "#start-button" ).removeClass( "hidden" )
+                    $( "#start-button" ).removeClass( "remove" )
                 }
             } );
 

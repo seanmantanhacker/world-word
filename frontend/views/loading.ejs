@@ -10,43 +10,36 @@
     
     <link rel="stylesheet" href="/css/loading.css" />
     </head>
-<body>
+<body class="bg-main">
     <div class="bg"> 
-        <div>
+        <div class="center2 custom-text1">
             Another World Word wIDE!
         </div>
-
         <div id="myProgress">
             <div id="myBar"></div>
-          </div>
-            
-            
-
+            <div class="center-2">0 %</div>
+          </div>  
     </div>
 
-    <div class="container">
-        <div id="question">Pertanyaan nya adalah wkwkwwkwkw</div>
+    <div id="container" class="container remove">
+        <div class="custom-text2 center" id="question">Pertanyaan nya adal aaaaaaaaa aa aa a aa a a aaaaaaaaaaaaa aa a a aah wkwkwwkwkw</div>
         <div class="remove" id="info"></div>
-        <h2 id="timer" class="hidden"></h2>
-        <div id="input-box" class="input-box">
-            <label for="answer">Jawaban kecohan :</label>
-            <input class="kecohan" type="text" placeholder="..." name="answer">
-            <button id="send">Send !</button>
-            <input class="kunci" type="text" disabled>
-         </div>
+        <h1 id="timer" class="center custom-text3 hidden"></h1>
+        
          <div id="answer-box" class ="answer-box hidden">
-            <button>aaa</button>
-            <button>aaa</button>
-            <button>aaaaas</button>
-            <button>aaa</button>
-            <button>aaa</button>
+            
          </div>
-         <div id="score" class="hidden">
+         <div id="input-box" class="custom-text3 input-box">
+            <label class="custom-text2" for="answer">Jawaban kecohan :</label>
+            <input class="kecohan" type="text" placeholder="..." name="answer">
+            <button class="center-button2" id="send">Send !</button>
+            <input class="kunci center-1" type="text" disabled>
+         </div>
+         <div id="score" class="center hiddena">
             <table id="table-score">
                 <tr>
                   <th>Name</th>
                   <th>Answer</th>
-
                   <th>score</th>
                 </tr>
                
@@ -62,12 +55,7 @@
     </html>
 
     <script>
-        // function sleepFor(sleepDuration){
-        // var now = new Date().getTime();
-        // while(new Date().getTime() < now + sleepDuration){ 
-        //     /* Do nothing */ 
-        // }
-        // }
+        
         function shuffle(array) {
             let currentIndex = array.length;
 
@@ -90,6 +78,7 @@
     </script>
 
     <script>
+        $("#container").addClass("remove")
         data_peserta = <%-JSON.stringify(peserta)%>;
         set_q = <%-JSON.stringify(setQuestion)%>;
         var myId = ""
@@ -156,7 +145,7 @@
                     if (msg[i][1] == myId){
                         continue
                     }
-                    $("#answer-box").append(`<button id="button${i}" onclick="myFunction('${msg[i][1]}','button${i}')">${msg[i][0]}</button>`)
+                    $("#answer-box").append(`<button class="button" id="button${i}" onclick="myFunction('${msg[i][1]}','button${i}')">${msg[i][0]}</button>`)
                 }
                               
             } );
@@ -178,26 +167,77 @@
                 list_score = msg.msg
                 
                 var length = Object.keys(list_score).length;
+                console.log(length)
                 $("#table-score").find("tr:gt(0)").remove();
                 
                     console.log("done")
-                    await sleep(1000)
+
+                    console.log()
+                pemenang = "TbC"   
+                score_sem = 0 
                 for (var i = 0; i < length ; i++) {
+                    
                     data = list_score[Object.keys(list_score)[i]];
+                    console.log(data)
                     nama = data.name
                     pilihanText = data.pilihanText
-                    score = data.score
+                    score = parseInt(data.score)
+                    if (score > score_sem){
+                        score_sem = score
+                        pemenang = nama
+                    }
+                    adj = parseInt(data.addj)
+                    before = score-adj
+
                     $('#table-score tbody tr:last').after(`<tr>
-                        <th>${nama}</th>
-                        <th>${pilihanText}</th>
-                        <th>${score}</th>
+                        <td>${nama}</td>
+                        <td>${pilihanText}</td>
+                        <td>${before}</td>
                     </tr>`);
-                    console.log("done")
-                    await sleep(1000)
+                    
+                  
+                    pid = $("#table-score tbody tr:last").find('td:eq(2)').text();
+                    if (adj < 0){
+                        hsa = `${pid} <p class="red">${adj}<\p>`
+                        hsa2 = `${score} <p class="red">${adj}<\p>`
+                    }
+                    else if (adj == 0){
+                        hsa = `${pid} <p>${adj}<\p>`
+                        hsa2 = `${score} <p>${adj}<\p>`
+                    } else {
+                        hsa = `${pid} <p class="green">+${adj}<\p>`
+                        hsa2 = `${score} <p class="green">+${adj}<\p>`
+                    }
+                    
+                    $("#table-score tbody tr:last").find('td:eq(2)').html(hsa);
+                    await sleep(2000)
+                           
+                    var j = 1
+                    for (j = 1 ; j <= Math.abs(adj) ; j++){
+                        if (adj > 0){
+                            helper = parseInt(pid) + j
+                            hsa2 = `${helper} <p class="green">+${adj - j}<\p>`
+                        $("#table-score tbody tr:last").find('td:eq(2)').html(hsa2);
+                        } else {
+                            helper = parseInt(pid) - j
+                            hsa2 = `${helper} <p class="red">+${adj + j}<\p>`
+                        $("#table-score tbody tr:last").find('td:eq(2)').html(hsa2);
+                        }
+                        await sleep(15)
+                    
+                    }
+                    
+                    await sleep(2000)
+                   
                 }
                 
 
-                await sleep(3000); 
+                await sleep(5000); 
+                if (ronde == 4) {
+                    await sleep(3000)
+                    $("#info").text("PEMENANGNYA ADALAH " + pemenang)
+                    await sleep(15000)
+                }
                 
                 if (data_peserta[myId].host){
                     if (ronde == 4){
@@ -219,28 +259,25 @@
             
         }
         } // ap
-        
        
          $( document ).ready(function() {
 
             //INIT
-            socket = app.connect()  
-
-            app.socket.emit('start-session', {  sessionId: myId })
-
-            //INIT
             var i = 0;
+            console.log("kapan masuk sini1")
             if (i == 0) {
                 i = 1;
                 var elem = document.getElementById("myBar");
                 var width = 1;
-                var id = setInterval(frame, 100);
+                var id = setInterval(frame, 20);
                 function frame() {
                 
                 if (width >= 100) {
                     clearInterval(id);
                     i = 0;
                     $(".bg").addClass("remove")
+                    $("#container").removeClass("remove")
+                    console.log("kapan masuk sini beres")
                     console.log(data_peserta[myId].host)
                     if (data_peserta[myId].host){
                         app.socket.emit('start fase 1', "aa");
@@ -248,11 +285,33 @@
                     
                 } else {
                     width++;
+                    $(".center-2").text(width+" %")
                     elem.style.width = width + "%";
+                    // if (width ==30){
+                    //     clearInterval(id);
+                    //     id = setInterval(frame, 4000);
+                    // } 
+                    // if (width == 32){
+                    //     clearInterval(id);
+                    //     id = setInterval(frame,20)
+                    // }
+                    // if (width == 78){
+                    //     clearInterval(id);
+                    //     id = setInterval(frame, 6000);
+                    // }
+                    // if (width == 79){
+                    //     clearInterval(id)
+                    //     id = setInterval(frame,100)
+                    // }
                 }
                 }
             }
 
+             //INIT
+             console.log("kapan masuk sini sebeleum socket")
+             socket = app.connect()  
+            app.socket.emit('start-session', {  sessionId: myId })
+            console.log("kapan masuk sini setelah scoker")
             $("#send").on( "click", function() {   
                 send_kecohan =  $(".kecohan").val()
                 console.log(send_kecohan)   

@@ -141,18 +141,27 @@ app.get('/', (req, res) => {
                      } else if (pilihan == "bot"){
                         peserta[key].pilihanText = set_soal.f1
                      } else {
-                        peserta[key].pilihanText = peserta[pilihan].answer
+                        if (peserta[pilihan] == undefined){
+                           peserta[key].pilihanText = "Tidak mengisi"
+                        } else {
+                           peserta[key].pilihanText = peserta[pilihan].answer
+                        }
+                        
                      }
                   });
                   Object.keys(peserta).forEach(key => {
+                     console.log("DEBUG")
+                     console.log(peserta)
+                     console.log(key)
+                     
+                     pilihan = peserta[key].pilihan == undefined ? "bot" : peserta[key].pilihan
                
-                     pilihan = peserta[key].pilihan
                      if (pilihan == "true"){
                         peserta[key].score = peserta[key].score + 100
-                        peserta[key].addj = 100 
+                        peserta[key].addj = peserta[key].addj + 100 
                      } else if (pilihan == "bot") {
-                        peserta[key].score = peserta[key].score + -10
-                        peserta[key].addj = -10
+                        peserta[key].score = peserta[key].score -10
+                        peserta[key].addj = peserta[key].addj -10
                      } else {
                         peserta[pilihan].score = peserta[pilihan].score + 20
                         peserta[pilihan].addj = peserta[pilihan].addj + 20
@@ -224,14 +233,16 @@ app.get('/', (req, res) => {
                      }
                   });
                   Object.keys(peserta).forEach(key => {
+                     console.log("AAAAAAAAAAAAAAAAAaa")
+                     console.log(peserta)
                
-                     pilihan = peserta[key].pilihan
+                     pilihan = peserta[key].pilihan == undefined ? "bot" : peserta[key].pilihan
                      if (pilihan == "true"){
                         peserta[key].score = peserta[key].score + 100
-                        peserta[key].addj = 100 
+                        peserta[key].addj = peserta[key].addj + 100 
                      } else if (pilihan == "bot") {
-                        peserta[key].score = peserta[key].score + -10
-                        peserta[key].addj = -10
+                        peserta[key].score = peserta[key].score -10
+                        peserta[key].addj = peserta[key].addj -10
                      } else {
                         peserta[pilihan].score = peserta[pilihan].score + 20
                         peserta[pilihan].addj = peserta[pilihan].addj + 20
@@ -302,13 +313,13 @@ app.get('/', (req, res) => {
                   });
                   Object.keys(peserta).forEach(key => {
                
-                     pilihan = peserta[key].pilihan
+                     pilihan = peserta[key].pilihan == undefined ? "bot" : peserta[key].pilihan
                      if (pilihan == "true"){
                         peserta[key].score = peserta[key].score + 100
-                        peserta[key].addj = 100 
+                        peserta[key].addj = peserta[key].addj + 100 
                      } else if (pilihan == "bot") {
-                        peserta[key].score = peserta[key].score + -10
-                        peserta[key].addj = -10
+                        peserta[key].score = peserta[key].score -10
+                        peserta[key].addj = peserta[key].addj -10
                      } else {
                         peserta[pilihan].score = peserta[pilihan].score + 20
                         peserta[pilihan].addj = peserta[pilihan].addj + 20
@@ -379,13 +390,13 @@ app.get('/', (req, res) => {
                   });
                   Object.keys(peserta).forEach(key => {
                
-                     pilihan = peserta[key].pilihan
+                     pilihan = peserta[key].pilihan == undefined ? "bot" : peserta[key].pilihan
                      if (pilihan == "true"){
                         peserta[key].score = peserta[key].score + 100
-                        peserta[key].addj = 100 
+                        peserta[key].addj = peserta[key].addj + 100 
                      } else if (pilihan == "bot") {
-                        peserta[key].score = peserta[key].score + -10
-                        peserta[key].addj = -10
+                        peserta[key].score = peserta[key].score -10
+                        peserta[key].addj = peserta[key].addj -10
                      } else {
                         peserta[pilihan].score = peserta[pilihan].score + 20
                         peserta[pilihan].addj = peserta[pilihan].addj + 20
@@ -408,8 +419,9 @@ app.get('/', (req, res) => {
    })
  
    socket.on('join lobby', (msg) => {
-      
+      console.log(msg)
       var assign_id = Object.keys(peserta).length;
+
       
       if (assign_id == 0){
          peserta[msg.from] = {} 
@@ -419,9 +431,14 @@ app.get('/', (req, res) => {
          peserta[msg.from]["socketid"] = socket.id
          
       } else {
+         if (peserta[msg.from] != undefined && peserta[msg.from]["host"] == true){
+            aa = true
+         } else {
+            aa = false
+         }
          peserta[msg.from] = {} 
          peserta[msg.from]["name"] = msg.uname
-         peserta[msg.from]["host"] = false
+         peserta[msg.from]["host"] = aa
          peserta[msg.from]["score"] = 0
          peserta[msg.from]["socketid"] = socket.id 
       }
@@ -456,7 +473,7 @@ app.get('/', (req, res) => {
 //Handle 404
 app.use(function (req, res, next) {
    if (req.accepts('html') && res.status(404)) {
-      res.render('pages/404')
+      res.render('404')
       return;
    }
 });

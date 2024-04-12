@@ -1,5 +1,7 @@
 body, html {
     height: 100%;
+    margin:0;
+    font-size: 1em;
   }
   
   .bg {
@@ -18,14 +20,81 @@ body, html {
     background-size: cover;
   }
 
-  #myProgress {
+  .bg-main {
+    /* The image used */
+    background-image: url("/image/main.jpg");
+  
+    /* Full height */
+    height: 100%;
     width: 100%;
+    position: fixed;
+    z-index: -99;
+  
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  .center {
+    position: relative;  
+    padding: 5px;
+    border: 1px solid green;   
+    text-align: center;
+    
+  }
+  .center2 {
+    margin: 4px;
+    position: relative;  
+    border: 1px solid green;   
+    text-align: center;
+    
+  }
+
+  .center-2 {
+    z-index: 99;
+    font-size: 12px;
+    height: 12px !important;
+  }
+
+  .center-1 {
+    width: 100%;
+  }
+
+  .custom-text1{
+    font-weight: 900;
+    background-color: rgb(231, 203, 165,0.7);
+  }
+
+  .custom-text2{
+    font-weight: 900;
+    border-radius: 30%;  
+    background-color: rgb(0, 0, 0,0.4);
+    color: white;
+  }
+
+  .custom-text3{
+    font-weight: 900;
+    background-color: rgb(233, 233, 22 ,0.3);
+    font-size: 1em;
+    
+  }
+
+  #myProgress {
+    width: 90%;
+    left:5%;
+    text-align: center;
     background-color: grey;
+    position:absolute;
+    bottom:5%;
+    z-index: 2;
   }
   
   #myBar {
     width: 1%;
-    height: 30px;
+    z-index: -6;
+    position: absolute;
+    height: 12px;
     background-color: green;
   }
 
@@ -39,5 +108,51 @@ body, html {
   }
 
   .button-choose {
-    background-color: aqua;
+    background-color: aqua !important;
+  }
+
+  .button {
+    background-color: rgb(211, 170, 154);
+    padding: 3px;
+    margin : 4px;
+    font-size: x-large;
+  }
+
+  .center-button2{
+    width: 100%;
+    background-color: black;
+    border: 1px solid white;
+    color: antiquewhite;
+    font-weight: 900;
+    padding: 6px 0px 6px 0px;
+    margin: 10px 0px 0px 0px;
+  }
+
+  #answer-box{
+    padding: 30px 2px 30px 2px;
+  }
+
+  #score, #info{
+    background-color: rgb(94, 93, 92,0.3);
+    color: antiquewhite;
+  }
+
+  table, th, td {
+    border: 1px solid;
+    
+  }
+  table {
+    width :100%
+  }
+  th {
+    width:25%;
+    font-size: larger;
+  }
+
+  .red {
+    color: red;
+  }
+
+  .green {
+    color: greenyellow;
   }
