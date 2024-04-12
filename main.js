@@ -19,8 +19,8 @@ app.use(function (req, res, next) {
    next();
 });
 
-const TIME_SEND_KECOHAN = 15;
-const TIME_SEND_ANSWER = 12;
+const TIME_SEND_KECOHAN = 18;
+const TIME_SEND_ANSWER = 15;
 const set_question = config.set_question
 function getRandomNumber(min, max) {
    return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -127,9 +127,7 @@ app.get('/', (req, res) => {
                      }
                   });
                   Object.keys(peserta).forEach(key => {
-                     console.log("DEBUG")
-                     console.log(peserta)
-                     console.log(key)
+                     
                      
                      pilihan = peserta[key].pilihan == undefined ? "bot" : peserta[key].pilihan
                
