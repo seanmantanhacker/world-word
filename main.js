@@ -457,6 +457,10 @@ app.get('/', (req, res) => {
 
     socket.on('game finish', (msg) => {
       peserta = {}
+      state = {
+         gameStart : false,
+      }
+
     })
 
  });
