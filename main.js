@@ -39,28 +39,43 @@ app.use(express.json()); // must be included when use post request
 app.use(express.urlencoded({ extended: true })); //must be included when use post request
 
 var peserta = {}
+var state = {
+   gameStart : false,
+
+}
 
 app.get('/', (req, res) => {
    console.log(peserta)
    res.render('home', {
       peserta: peserta,
+      state : state
     });
  })
 
  app.get('/loading', (req, res) => {
-   console.log(peserta)
+   const query = req.query;
+   console.log(query)
+   if (query == undefined){
+      query = {}
+      query.spectate = false
+   }
+   
    res.render('loading', {
       peserta: peserta,
-      setQuestion : set_soal
+      setQuestion : set_soal,
+      query : query
     });
  })
 
  io.on('connection', (socket) => {
-   console.log('a user connected');
-   console.log(socket.rooms)
 
    socket.on('start sesion',(msg )=>{
-      peserta[msg.sessionId]["socketid"] = socket.id 
+      if (peserta[msg.sessionId] == undefined) {
+         return
+      }else {
+         peserta[msg.sessionId]["socketid"] = socket.id 
+      }
+      
    })
 
    socket.on('send question',(msg )=>{
@@ -429,6 +444,7 @@ app.get('/', (req, res) => {
 
     socket.on('game start', (msg) => {
       i = 5;
+      state.gameStart = true
       myvar = setInterval(function(){ 
          io.emit('timer game start',i );
          i--;

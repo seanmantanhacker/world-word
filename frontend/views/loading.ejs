@@ -90,6 +90,7 @@
         $("#container").addClass("remove")
         data_peserta = <%-JSON.stringify(peserta)%>;
         set_q = <%-JSON.stringify(setQuestion)%>;
+        state = <%-JSON.stringify(query)%>;
         var myId = ""
         const my_uuid = localStorage.getItem("uuid");
         
@@ -282,7 +283,7 @@
             //INIT
             audio2.play()
             var i = 0;
-            console.log("kapan masuk sini1")
+            
             if (i == 0) {
                 i = 1;
                 var elem = document.getElementById("myBar");
@@ -328,44 +329,47 @@
              //INIT
              console.log("kapan masuk sini sebeleum socket")
              socket = app.connect()  
-            app.socket.emit('start-session', {  sessionId: myId })
-            console.log("kapan masuk sini setelah scoker")
-            $("#send").on( "click", function() {   
-                send_kecohan =  $(".kecohan").val()
-                console.log(send_kecohan)   
-                data = {
-                    from : myId,
-                    kecohan : send_kecohan
-                }    
-            
-                app.socket.emit('send question', data);
-                $(".kecohan").val("")
-                $(".kunci").val(send_kecohan)
+               if (!state.spectate) {
+                app.socket.emit('start-session', {  sessionId: myId })
+          
+
+                $("#send").on( "click", function() {   
+                    send_kecohan =  $(".kecohan").val()
+                    console.log(send_kecohan)   
+                    data = {
+                        from : myId,
+                        kecohan : send_kecohan
+                    }    
                 
-            });
-
-           
-            
-         })
-
-         function myFunction(orang,buttonId) {
-            console.log(orang)
-            var assign_peserta= Object.keys(data_peserta).length;
-            console.log(assign_peserta)
-            for (i = 0 ; i < assign_peserta+2 ; i++){
-                word = "button" + i
-                console.log(word)
-                if (word == buttonId){
-                    $('#'+word).addClass("button-choose")
-                } else {
-                    $('#'+word).removeClass("button-choose")
+                    app.socket.emit('send question', data);
+                    $(".kecohan").val("")
+                    $(".kunci").val(send_kecohan)
+                    
+                });
                 }
+            
+            })
+        if (!state.spectate) {
+            function myFunction(orang,buttonId) {
+                console.log(orang)
+                var assign_peserta= Object.keys(data_peserta).length;
+                console.log(assign_peserta)
+                for (i = 0 ; i < assign_peserta+2 ; i++){
+                    word = "button" + i
+                    console.log(word)
+                    if (word == buttonId){
+                        $('#'+word).addClass("button-choose")
+                    } else {
+                        $('#'+word).removeClass("button-choose")
+                    }
+                }
+                data2 ={
+                    from:myId,
+                    answer:orang
+                }
+                app.socket.emit('send answer', data2);
             }
-            data2 ={
-                from:myId,
-                answer:orang
-            }
-            app.socket.emit('send answer', data2);
+            
         }
 
          
