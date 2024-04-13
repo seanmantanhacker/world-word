@@ -63,7 +63,8 @@ app.get('/', (req, res) => {
    res.render('loading', {
       peserta: peserta,
       setQuestion : set_soal,
-      query : query
+      query : query,
+      state:state
     });
  })
 

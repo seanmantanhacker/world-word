@@ -56,8 +56,6 @@
          </div>
         
     </div>
-
-    
     
     </body>
     </html>
@@ -91,6 +89,10 @@
         data_peserta = <%-JSON.stringify(peserta)%>;
         set_q = <%-JSON.stringify(setQuestion)%>;
         state = <%-JSON.stringify(query)%>;
+        gameState = <%-JSON.stringify(state)%>;
+        if (gameState.gameStart == false) {
+            window.location.href = "/"
+        }
         var myId = ""
         const my_uuid = localStorage.getItem("uuid");
         
