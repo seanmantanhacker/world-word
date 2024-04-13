@@ -67,12 +67,22 @@
 </script>
 <script>
     var myId = ""
+    const my_uuid = localStorage.getItem("uuid");
+        
+        if (my_uuid == null){
+            let myuuid = generateUUID();
+            
+            localStorage.setItem("uuid", myuuid);
+            myId = myuuid
+        } else {
+            myId = my_uuid
+        }      
     var start_able = true
     var audio1 = document.getElementById("music1");
-    var state = <%-JSON.stringify(state)%>
+    var state = <%-JSON.stringify(state)%>;
     if (state.gameStart){
         $("#join-button").addClass("hidden")
-        window.location.href = "/loading?id=0&spectate=true"
+        window.location.href = "/loading?id=" + myId
     }
     console.log(state.gameStart)
     var app = {
@@ -138,17 +148,6 @@
     // A $( document ).ready() block.
     $( document ).ready(function() {
 
-             
-        const my_uuid = localStorage.getItem("uuid");
-        
-        if (my_uuid == null){
-            let myuuid = generateUUID();
-            
-            localStorage.setItem("uuid", myuuid);
-            myId = myuuid
-        } else {
-            myId = my_uuid
-        }      
 
         $( "#join-button" ).on( "click", function() {            
             app.connect();           

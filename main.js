@@ -27,8 +27,7 @@ function getRandomNumber(min, max) {
 }
 
 var randomNumber = getRandomNumber(1, 32);
-
-set_soal = set_question[randomNumber]
+var set_soal = set_question[randomNumber]
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -54,10 +53,17 @@ app.get('/', (req, res) => {
 
  app.get('/loading', (req, res) => {
    const query = req.query;
-   console.log(query)
+
    if (query == undefined){
       query = {}
       query.spectate = false
+   } else {
+      myId = query.id
+      if (peserta[myId] == undefined){ //Peserta tidak ter-registrasi maka spectate
+         query.spectate = false
+      } else {
+         query.spectate = true
+      }
    }
    
    res.render('loading', {
@@ -446,6 +452,9 @@ app.get('/', (req, res) => {
     socket.on('game start', (msg) => {
       i = 5;
       state.gameStart = true
+      randomNumber = getRandomNumber(1, 32);
+      set_soal = set_question[randomNumber]
+
       myvar = setInterval(function(){ 
          io.emit('timer game start',i );
          i--;
