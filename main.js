@@ -19,8 +19,8 @@ app.use(function (req, res, next) {
    next();
 });
 
-const TIME_SEND_KECOHAN = 18;
-const TIME_SEND_ANSWER = 15;
+const TIME_SEND_KECOHAN = 22;
+const TIME_SEND_ANSWER = 18;
 const set_question = config.set_question
 function getRandomNumber(min, max) {
    return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -44,7 +44,6 @@ var state = {
 }
 
 app.get('/', (req, res) => {
-   console.log(peserta)
    res.render('home', {
       peserta: peserta,
       state : state
@@ -53,23 +52,22 @@ app.get('/', (req, res) => {
 
  app.get('/loading', (req, res) => {
    const query = req.query;
-
-   if (query == undefined){
-      query = {}
-      query.spectate = false
+   var helper_query = {}
+   if (query == undefined || Object.keys(query).length == 0){
+      helper_query.spectate = false
    } else {
       myId = query.id
       if (peserta[myId] == undefined){ //Peserta tidak ter-registrasi maka spectate
-         query.spectate = false
+         helper_query.spectate = true
       } else {
-         query.spectate = true
+         helper_query.spectate = false 
       }
    }
    
    res.render('loading', {
       peserta: peserta,
       setQuestion : set_soal,
-      query : query,
+      query : helper_query,
       state:state
     });
  })
@@ -129,9 +127,7 @@ app.get('/', (req, res) => {
                i--;
                if (i< 0){
                   clearInterval(myvar2);
-                  console.log("debug here\n")
-
-                  console.log(peserta)
+                  
                   Object.keys(peserta).forEach(key => {   
                      peserta[key].addj = 0  
                      pilihan = peserta[key].pilihan
@@ -165,7 +161,6 @@ app.get('/', (req, res) => {
                      }
               
                   });
-                  console.log("SEND SCORE")
                   
                   t = {
                      msg : peserta,
@@ -215,9 +210,7 @@ app.get('/', (req, res) => {
                i--;
                if (i< 0){
                   clearInterval(myvar2);
-                  console.log("debug here\n")
-
-                  console.log(peserta)
+                  
                   Object.keys(peserta).forEach(key => {   
                      peserta[key].addj = 0  
                      pilihan = peserta[key].pilihan
@@ -230,8 +223,7 @@ app.get('/', (req, res) => {
                      }
                   });
                   Object.keys(peserta).forEach(key => {
-                     console.log("AAAAAAAAAAAAAAAAAaa")
-                     console.log(peserta)
+                     
                
                      pilihan = peserta[key].pilihan == undefined ? "bot" : peserta[key].pilihan
                      if (pilihan == "true"){
@@ -294,9 +286,7 @@ app.get('/', (req, res) => {
                i--;
                if (i< 0){
                   clearInterval(myvar2);
-                  console.log("debug here\n")
-
-                  console.log(peserta)
+                  
                   Object.keys(peserta).forEach(key => {   
                      peserta[key].addj = 0  
                      pilihan = peserta[key].pilihan
@@ -371,9 +361,7 @@ app.get('/', (req, res) => {
                i--;
                if (i< 0){
                   clearInterval(myvar2);
-                  console.log("debug here\n")
-
-                  console.log(peserta)
+                  
                   Object.keys(peserta).forEach(key => {   
                      peserta[key].addj = 0  
                      pilihan = peserta[key].pilihan
@@ -416,9 +404,7 @@ app.get('/', (req, res) => {
    })
  
    socket.on('join lobby', (msg) => {
-      console.log(msg)
       var assign_id = Object.keys(peserta).length;
-
       
       if (assign_id == 0){
          peserta[msg.from] = {} 
@@ -440,8 +426,6 @@ app.get('/', (req, res) => {
          peserta[msg.from]["socketid"] = socket.id 
       }
       
-      console.log("=====================\n")
-      console.log(peserta)
       data = {
          peserta : peserta,
          assignUser : msg.from

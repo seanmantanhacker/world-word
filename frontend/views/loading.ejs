@@ -88,7 +88,7 @@
         $("#container").addClass("remove")
         data_peserta = <%-JSON.stringify(peserta)%>;
         set_q = <%-JSON.stringify(setQuestion)%>;
-        state = <%-JSON.stringify(query)%>;
+        query = <%-JSON.stringify(query)%>;
         gameState = <%-JSON.stringify(state)%>;
         if (gameState.gameStart == false) {
             window.location.href = "/"
@@ -331,7 +331,7 @@
              //INIT
              console.log("kapan masuk sini sebeleum socket")
              socket = app.connect()  
-               if (!state.spectate) {
+               if (!query.spectate) {
                 app.socket.emit('start-session', {  sessionId: myId })
           
 
@@ -351,7 +351,7 @@
                 }
             
             })
-        if (!state.spectate) {
+        if (!query.spectate) {
             function myFunction(orang,buttonId) {
                 console.log(orang)
                 var assign_peserta= Object.keys(data_peserta).length;
