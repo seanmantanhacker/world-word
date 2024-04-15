@@ -40,6 +40,7 @@ app.use(express.urlencoded({ extended: true })); //must be included when use pos
 var peserta = {}
 var state = {
    gameStart : false,
+   fase : 0
 
 }
 
@@ -95,8 +96,16 @@ app.get('/', (req, res) => {
    })
 
    socket.on('start fase 1',(msg )=>{
-      
-      io.emit('receive soal', set_soal.q1);
+      message = {
+         msg : set_soal.q1,
+         fase : 1
+      }
+      if (state.fase == 1){
+         io.emit('receive soal', message); 
+         return
+      }
+      state.fase = 1
+      io.emit('receive soal', message);
       i = TIME_SEND_KECOHAN ;
       myvar = setInterval(function(){ 
          io.emit('timer',i );
@@ -176,8 +185,16 @@ app.get('/', (req, res) => {
    })
 
    socket.on('start fase 2',(msg )=>{
-      
-      io.emit('receive soal', set_soal.q2);
+      message = {
+         msg : set_soal.q2,
+         fase : 2
+      }
+      if (state.fase == 2){
+         io.emit('receive soal', message); 
+         return
+      }
+      state.fase = 2
+      io.emit('receive soal', message);
       i = TIME_SEND_KECOHAN ;
       myvar = setInterval(function(){ 
          io.emit('timer',i );
@@ -254,8 +271,16 @@ app.get('/', (req, res) => {
    })
 
    socket.on('start fase 3',(msg )=>{
-      
-      io.emit('receive soal', set_soal.q3);
+      message = {
+         msg : set_soal.q3,
+         fase : 3
+      }
+      if (state.fase == 3){
+         io.emit('receive soal', message); 
+         return
+      }
+      state.fase = 3
+      io.emit('receive soal', message);
       i = TIME_SEND_KECOHAN ;
       myvar = setInterval(function(){ 
          io.emit('timer',i );
@@ -329,8 +354,16 @@ app.get('/', (req, res) => {
    })
 
    socket.on('start fase 4',(msg )=>{
-      
-      io.emit('receive soal', set_soal.q4);
+      message = {
+         msg : set_soal.q4,
+         fase : 4
+      }
+      if (state.fase == 4){
+         io.emit('receive soal', message); 
+         return
+      }
+      state.fase = 4
+      io.emit('receive soal', message);
       i = TIME_SEND_KECOHAN ;
       myvar = setInterval(function(){ 
          io.emit('timer',i );
@@ -415,13 +448,13 @@ app.get('/', (req, res) => {
          
       } else {
          if (peserta[msg.from] != undefined && peserta[msg.from]["host"] == true){
-            aa = true
+            isHost = true
          } else {
-            aa = false
+            isHost = false
          }
          peserta[msg.from] = {} 
          peserta[msg.from]["name"] = msg.uname
-         peserta[msg.from]["host"] = aa
+         peserta[msg.from]["host"] = isHost
          peserta[msg.from]["score"] = 0
          peserta[msg.from]["socketid"] = socket.id 
       }
@@ -453,6 +486,7 @@ app.get('/', (req, res) => {
       peserta = {}
       state = {
          gameStart : false,
+         fase : 0
       }
 
     })

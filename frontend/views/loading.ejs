@@ -85,6 +85,7 @@
 
     <script>
         var audio2 = document.getElementById("music2")
+        var audio3 = document.getElementById("music3")
         $("#container").addClass("remove")
         data_peserta = <%-JSON.stringify(peserta)%>;
         set_q = <%-JSON.stringify(setQuestion)%>;
@@ -135,14 +136,22 @@
                 
             } );
             this.socket.on( 'receive soal', function (msg) {
-                $("#question").text(msg)
+                console.log("masuk")
+                message = msg.msg
+                fase = msg.fase
+                if (fase == 4 ){
+                    audio2.pause()
+                    audio3.play()
+                }
+                $("#question").text(message)
+
                 $("#input-box").removeClass("remove")
                 $("#answer-box").addClass("remove")
                 $("#question").removeClass("remove")
                 $("#timer").removeClass("remove")
                 $("#score").addClass("hidden")
                 $("#info").addClass("remove")
-                console.log(msg)
+                
                            
             } );
 
@@ -301,29 +310,39 @@
                     console.log("kapan masuk sini beres")
                     console.log(data_peserta[myId].host)
                     if (data_peserta[myId].host){
-                        app.socket.emit('start fase 1', "aa");
+                        fase = gameState.fase
+                        if (fase == 0){
+                            fase = 1
+                        }
+                        msg_fase = `start fase ${fase}`
+                        
+                        app.socket.emit(msg_fase, null);
                     }
                     
                 } else {
+
                     width++;
                     $(".center-2").text(width+" %")
                     elem.style.width = width + "%";
-                    if (width ==30){
-                        clearInterval(id);
-                        id = setInterval(frame, 4000);
+                    if (gameState.fase == 0){
+                        if (width ==30){
+                            clearInterval(id);
+                            id = setInterval(frame, 4000);
+                        } 
+                        if (width == 32){
+                            clearInterval(id);
+                            id = setInterval(frame,20)
+                        }
+                        if (width == 78){
+                            clearInterval(id);
+                            id = setInterval(frame, 6000);
+                        }
+                        if (width == 79){
+                            clearInterval(id)
+                            id = setInterval(frame,100)
+                        }
                     } 
-                    if (width == 32){
-                        clearInterval(id);
-                        id = setInterval(frame,20)
-                    }
-                    if (width == 78){
-                        clearInterval(id);
-                        id = setInterval(frame, 6000);
-                    }
-                    if (width == 79){
-                        clearInterval(id)
-                        id = setInterval(frame,100)
-                    }
+                   
                 }
                 }
             }
