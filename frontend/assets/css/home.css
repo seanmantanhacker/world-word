@@ -1,7 +1,7 @@
 body, html {
     height: 100%;
-    margin: 2px !important;
-    font-family: Arial, Helvetica, sans-serif;
+    margin: 0px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: large;
   }
 .hidden {
@@ -33,21 +33,35 @@ body, html {
     background-size: cover;
   }
 
+  @media only screen and (max-width: 600px) {
+    .bg2 {
+      /* The image used */
+      background-image: url("https://word.gamecenter.icu/image/back.png");
+    
+      
+    }
+    .container {
+    
+      border: 0px;
+      margin: 5px;
+      
+    }
+  }
+
   .center {
-    margin : 5px;
-    position: relative;  
-    border: 1px solid green;   
+    
+    position: relative;      
     text-align: center;
     
     
   }
 
   .center-button{
-    font-size: 0.8em;
-    width: 85%;
+    font-size: 1.3em;
+    width: 100%;
     margin: 3px 0px 3px 0px;
-    border-radius: 5px;
-    background-color: rgba(150, 194, 109, 0.7);
+    border-radius: 12px;
+    background-color: rgba(203, 203, 201, 0.94);
   }
 
   .center-button2{
@@ -56,5 +70,16 @@ body, html {
     border: 1px solid white;
     color: antiquewhite;
     font-weight: 900;
-    padding: 6px 0px 6px 0px;
+    margin: 10px 5px 10px 5px;
+    padding: 10px 0px 10px 0px;
+  }
+
+  .panel-heading {
+    font-size: large;
+    color: azure;
+  }
+
+  .panel-body{
+    font-size: 18px;
+    color: azure;
   }

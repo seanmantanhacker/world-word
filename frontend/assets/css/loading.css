@@ -53,8 +53,9 @@ body, html {
 
   .center-2 {
     z-index: 99;
-    font-size: 12px;
-    height: 12px !important;
+    font-size: 18px;
+    height: 18px !important;
+    font-weight: 900;
   }
 
   .center-1 {
@@ -97,8 +98,8 @@ body, html {
     width: 1%;
     z-index: -6;
     position: absolute;
-    height: 12px;
-    background-color: green;
+    height: 16px;
+    background-color: rgb(20, 212, 20);
   }
 
   .remove {
