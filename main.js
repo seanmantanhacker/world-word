@@ -13,13 +13,13 @@ const express = require('express'),
 app.use(function (req, res, next) {
    res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
    //res.header("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, X-PINGOTHER,Access-Control-Request-Method, Access-Control-Request-Headers");
-   //res.header("Access-Control-Allow-Headers", "*");
+   res.header("Access-Control-Allow-Headers", "*");
    //res.header("x-frame-options", "SAMEORIGIN");
    res.header("Access-Control-Allow-Methods", "GET,POST");
    next();
 });
 
-const TIME_SEND_KECOHAN = 22;
+const TIME_SEND_KECOHAN = 25;
 const TIME_SEND_ANSWER = 18;
 const set_question = config.set_question
 function getRandomNumber(min, max) {

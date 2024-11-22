@@ -6,39 +6,39 @@ config.sean = {
    mysql: {
       host: "3.1.225.162",
       port: "3306",
-      database: "kharisma-abadi",
+      database: "",
       user: "remote",
       password: ""
    },
    is_staging: false,
    set_question :{
       1: {
-         q1: "Siapakah penemu bola lampu",
-         a1 : "Thomas alva edison",
-         f1 : "James Bowman",
-         q2: "aaaaaaaaaaaaa",
-         a2 : "realllll",
-         f2 : "fakee",
+         q1: "Komisi DPR-RI yang banyak berhubungan dengan Departemen keuangan adalah . . .",
+         a1 : "Komisi III",
+         f1 : "Komisi Badan Musyawarah",
+         q2: "Apa sebutan untuk proses pemilihan Perdana Menteri yang melibatkan perwakilan rakyat?",
+         a2 : "House of Parliaments",
+         f2 : "Parlementer",
          q3 : "Gunung tertinggi di dunia",
-         a3: "Bromo",
+         a3: "Mount Everest",
          f3: "Cikurai",
-         q4 : "soal no 4",
-         a4: "ini betul",
-         f4: "ini salah"
+         q4 : "Siapa nama presiden Amerika Serikat yang tertembak di teater Ford, Washington, Amerika Serikat pada 14 April 1865?",
+         a4: "abraham Lincoln",
+         f4: "John O' Corner"
       },
       2: {
-         a1: "sean",
-         f1: "oyeng",
-         q1: "Siapa orang paling ganteng di dunia ?",
-         a2: "bandung",
-         f2: "kalimantan",
-         q2: "tempat terbaik ___ untuk bersantai",
-         a3: "pohon",
-         f3: "apel",
-         q3: "benda paling keras ___",
-         a4: "x",
-         f4: "aa",
-         q4: "aaa"
+         a1: "empat",
+         f1: "2",
+         q1: "Umar Wirahadikusuma adalah wakil presiden Indonesia ke-",
+         a2: "Goliath",
+         f2: "Titanus Gilgateus",
+         q2: "Apa nama jenis kumbang terbesar di dunia?",
+         a3: "Abate",
+         f3: "Air sabun",
+         q3: "Apa nama obat untuk membunuh jentik-jentik di dalam air?",
+         a4: "peng Ekspor Minyak",
+         f4: "Iran, Irak, Kuwait, Arab Saudi, dan Venezuela",
+         q4: "OPEC adalah organisasi internasional yang anggotanya terdiri dari negara-negara..."
    
       },
       3 : {
