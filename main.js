@@ -1,7 +1,7 @@
 const express = require('express'),
    app = express(),
    path = require('path');
-   config = require('./config');
+   config = require('./config-sample');
    const http = require('http');
    const server = http.createServer(app);
    const { Server } = require("socket.io");
