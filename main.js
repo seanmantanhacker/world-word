@@ -19,7 +19,7 @@ app.use(function (req, res, next) {
    next();
 });
 
-const TIME_SEND_KECOHAN = 25;
+const TIME_SEND_KECOHAN = 20;
 const TIME_SEND_ANSWER = 18;
 const set_question = config.set_question
 function getRandomNumber(min, max) {

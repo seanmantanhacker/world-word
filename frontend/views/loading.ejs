@@ -30,15 +30,15 @@
     </div>
 
     <div id="container" class="container remove">
-        <div class="custom-text2 center" id="question">Pertanyaan nya adal aaaaaaaaa aa aa a aa a a aaaaaaaaaaaaa aa a a aah wkwkwwkwkw</div>
+        <div class="custom-text2 center" id="question">DUMMY QUESTION</div>
         <div class="remove" id="info"></div>
         <h1 id="timer" class="center custom-text3 hidden"></h1>
         
          <div id="answer-box" class ="answer-box hidden">
             
          </div>
-         <div id="input-box" class="custom-text3 input-box">
-            <label class="custom-text2" for="answer">Jawaban kecohan :</label>
+         <div id="input-box" class="input-box">
+            <label class="custom-text4" for="answer">Jawaban kecohan</label>
             <input class="kecohan" type="text" placeholder="..." name="answer">
             <button class="center-button2" id="send">Send !</button>
             <input class="kunci center-1" type="text" disabled>
@@ -179,21 +179,17 @@
                 $("#timer").addClass("remove")
                 $("#score").removeClass("hidden remove")
                 $("#info").removeClass("remove hidden")
-                console.log("Send Score 3")
+                
                 msg_ronde = ("a" + ronde)
                 $("#info").text("Jawaban yang Benar adalah : " + set_q[msg_ronde])
                 await sleep(3000); 
-                console.log(msg)
-                console.log("asd")
+                
                 list_score = msg.msg
                 
                 var length = Object.keys(list_score).length;
-                console.log(length)
-                $("#table-score").find("tr:gt(0)").remove();
                 
-                    console.log("done")
-
-                    console.log()
+                $("#table-score").find("tr:gt(0)").remove();
+   
                 pemenang = "TbC"   
                 score_sem = -999
                 for (var i = 0; i < length ; i++) {
@@ -299,7 +295,7 @@
                 i = 1;
                 var elem = document.getElementById("myBar");
                 var width = 1;
-                var id = setInterval(frame, 3000);//20
+                var id = setInterval(frame, 10);//20
                 function frame() {
                 
                 if (width >= 100) {
