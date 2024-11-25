@@ -19,8 +19,11 @@ app.use(function (req, res, next) {
    next();
 });
 
-const TIME_SEND_KECOHAN = 20;
-const TIME_SEND_ANSWER = 18;
+const TIME_SEND_KECOHAN = 23;
+const TIME_SEND_ANSWER = 17;
+const SCORE_BETUL = 100;
+const SCORE_SALAH = -10;
+const SCORE_ORG = 40;
 const set_question = config.set_question
 function getRandomNumber(min, max) {
    return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -159,16 +162,21 @@ app.get('/', (req, res) => {
                      pilihan = peserta[key].pilihan == undefined ? "bot" : peserta[key].pilihan
                
                      if (pilihan == "true"){
-                        peserta[key].score = peserta[key].score + 100
-                        peserta[key].addj = peserta[key].addj + 100 
+                        peserta[key].display = SCORE_BETUL
+                        peserta[key].score = peserta[key].score + SCORE_BETUL
+                        peserta[key].addj = peserta[key].addj + SCORE_BETUL
+                        
                      } else if (pilihan == "bot") {
-                        peserta[key].score = peserta[key].score -10
-                        peserta[key].addj = peserta[key].addj -10
+                        peserta[key].display = SCORE_SALAH
+                        peserta[key].score = peserta[key].score + SCORE_SALAH
+                        peserta[key].addj = peserta[key].addj + SCORE_SALAH
+                        
                      } else {
-                        peserta[pilihan].score = peserta[pilihan].score + 20
-                        peserta[pilihan].addj = peserta[pilihan].addj + 20
+                        peserta[pilihan].score = peserta[pilihan].score + SCORE_ORG
+                        peserta[pilihan].addj = peserta[pilihan].addj + SCORE_ORG
+                        peserta[key].display = 0
                      }
-              
+                     
                   });
                   
                   t = {
@@ -236,22 +244,34 @@ app.get('/', (req, res) => {
                      } else if (pilihan == "bot"){
                         peserta[key].pilihanText = set_soal.f2
                      } else {
-                        peserta[key].pilihanText = peserta[pilihan].answer
+                        
+                        if (peserta[pilihan] == undefined){
+                           peserta[key].pilihanText = "Tidak mengisi"
+                        } else {
+                           peserta[key].pilihanText = peserta[pilihan].answer
+                        }
                      }
                   });
                   Object.keys(peserta).forEach(key => {
                      
                
                      pilihan = peserta[key].pilihan == undefined ? "bot" : peserta[key].pilihan
+                  
+
                      if (pilihan == "true"){
-                        peserta[key].score = peserta[key].score + 100
-                        peserta[key].addj = peserta[key].addj + 100 
+                        peserta[key].display = SCORE_BETUL
+                        peserta[key].score = peserta[key].score + SCORE_BETUL
+                        peserta[key].addj = peserta[key].addj + SCORE_BETUL
+                        
                      } else if (pilihan == "bot") {
-                        peserta[key].score = peserta[key].score -10
-                        peserta[key].addj = peserta[key].addj -10
+                        peserta[key].display = SCORE_SALAH
+                        peserta[key].score = peserta[key].score + SCORE_SALAH
+                        peserta[key].addj = peserta[key].addj + SCORE_SALAH
+                        
                      } else {
-                        peserta[pilihan].score = peserta[pilihan].score + 20
-                        peserta[pilihan].addj = peserta[pilihan].addj + 20
+                        peserta[pilihan].score = peserta[pilihan].score + SCORE_ORG
+                        peserta[pilihan].addj = peserta[pilihan].addj + SCORE_ORG
+                        peserta[key].display = 0
                      }
               
                   });
@@ -295,6 +315,7 @@ app.get('/', (req, res) => {
                helper.push(key)
                arrayOfAnswer.push(helper)
                helper = []
+               peserta[key].pilihan = "bot"
         
             });
             helper.push(set_soal.a3,"true")
@@ -320,21 +341,31 @@ app.get('/', (req, res) => {
                      } else if (pilihan == "bot"){
                         peserta[key].pilihanText = set_soal.f3
                      } else {
-                        peserta[key].pilihanText = peserta[pilihan].answer
+                        
+                        if (peserta[pilihan] == undefined){
+                           peserta[key].pilihanText = "Tidak mengisi"
+                        } else {
+                           peserta[key].pilihanText = peserta[pilihan].answer
+                        }
                      }
                   });
                   Object.keys(peserta).forEach(key => {
                
                      pilihan = peserta[key].pilihan == undefined ? "bot" : peserta[key].pilihan
                      if (pilihan == "true"){
-                        peserta[key].score = peserta[key].score + 100
-                        peserta[key].addj = peserta[key].addj + 100 
+                        peserta[key].display = SCORE_BETUL
+                        peserta[key].score = peserta[key].score + SCORE_BETUL
+                        peserta[key].addj = peserta[key].addj + SCORE_BETUL
+                        
                      } else if (pilihan == "bot") {
-                        peserta[key].score = peserta[key].score -10
-                        peserta[key].addj = peserta[key].addj -10
+                        peserta[key].display = SCORE_SALAH
+                        peserta[key].score = peserta[key].score + SCORE_SALAH
+                        peserta[key].addj = peserta[key].addj + SCORE_SALAH
+                        
                      } else {
-                        peserta[pilihan].score = peserta[pilihan].score + 20
-                        peserta[pilihan].addj = peserta[pilihan].addj + 20
+                        peserta[pilihan].score = peserta[pilihan].score + SCORE_ORG
+                        peserta[pilihan].addj = peserta[pilihan].addj + SCORE_ORG
+                        peserta[key].display = 0
                      }
               
                   });
@@ -378,6 +409,7 @@ app.get('/', (req, res) => {
                helper.push(key)
                arrayOfAnswer.push(helper)
                helper = []
+               peserta[key].pilihan = "bot"
         
             });
             helper.push(set_soal.a4,"true")
@@ -403,21 +435,31 @@ app.get('/', (req, res) => {
                      } else if (pilihan == "bot"){
                         peserta[key].pilihanText = set_soal.f4
                      } else {
-                        peserta[key].pilihanText = peserta[pilihan].answer
+                        
+                        if (peserta[pilihan] == undefined){
+                           peserta[key].pilihanText = "Tidak mengisi"
+                        } else {
+                           peserta[key].pilihanText = peserta[pilihan].answer
+                        }
                      }
                   });
                   Object.keys(peserta).forEach(key => {
                
                      pilihan = peserta[key].pilihan == undefined ? "bot" : peserta[key].pilihan
                      if (pilihan == "true"){
-                        peserta[key].score = peserta[key].score + 100
-                        peserta[key].addj = peserta[key].addj + 100 
+                        peserta[key].display = SCORE_BETUL
+                        peserta[key].score = peserta[key].score + SCORE_BETUL
+                        peserta[key].addj = peserta[key].addj + SCORE_BETUL
+                        
                      } else if (pilihan == "bot") {
-                        peserta[key].score = peserta[key].score -10
-                        peserta[key].addj = peserta[key].addj -10
+                        peserta[key].display = SCORE_SALAH
+                        peserta[key].score = peserta[key].score + SCORE_SALAH
+                        peserta[key].addj = peserta[key].addj + SCORE_SALAH
+                        
                      } else {
-                        peserta[pilihan].score = peserta[pilihan].score + 20
-                        peserta[pilihan].addj = peserta[pilihan].addj + 20
+                        peserta[pilihan].score = peserta[pilihan].score + SCORE_ORG
+                        peserta[pilihan].addj = peserta[pilihan].addj + SCORE_ORG
+                        peserta[key].display = 0
                      }
               
                   });

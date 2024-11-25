@@ -12,7 +12,7 @@
         Your browser does not support the audio element.
     </audio>
     <audio id="music3" loop >
-        <source src="/music/impromptu-exorcism-201111.mp3">
+        <source src="/music/sukuna_ost.mp3">
         Your browser does not support the audio element.
     </audio>
     
@@ -136,7 +136,7 @@
                 
             } );
             this.socket.on( 'receive soal', function (msg) {
-                console.log("masuk")
+                
                 message = msg.msg
                 fase = msg.fase
                 if (fase == 4 ){
@@ -156,12 +156,12 @@
             } );
 
             this.socket.on( 'receive kecohan', function (msg) {
-                console.log(msg)
+                
                 $("#input-box").addClass("remove")
                 $("#answer-box").removeClass("remove hidden")
                 $("#answer-box").empty()
                 new_array = shuffle(msg)
-                console.log(new_array)
+                
                 for (i = 0; i < msg.length; i ++){
                     if (msg[i][1] == myId){
                         continue
@@ -182,21 +182,43 @@
                 
                 msg_ronde = ("a" + ronde)
                 $("#info").text("Jawaban yang Benar adalah : " + set_q[msg_ronde])
+                $("#table-score").find("tr:gt(0)").remove();
                 await sleep(3000); 
-                
-                list_score = msg.msg
-                
+                list_score = msg.msg               
                 var length = Object.keys(list_score).length;
                 
-                $("#table-score").find("tr:gt(0)").remove();
-   
                 pemenang = "TbC"   
                 score_sem = -999
+
+                //add here
+
                 for (var i = 0; i < length ; i++) {
-                    
                     data = list_score[Object.keys(list_score)[i]];
-                    console.log(data)
+                    
                     nama = data.name
+                    
+                    score = parseInt(data.score)
+                    
+                    adj = parseInt(data.addj)
+                    display = data.display
+
+                    $('#table-score tbody tr:last').after(`<tr class="${Object.keys(list_score)[i]}">
+                        <td>${nama}</td>
+                        <td>   </td>
+                        <td>${score - adj}</td>
+                    </tr>`);
+                }
+
+
+                //add here
+                
+                
+                for (var i = 0; i < length ; i++) {
+                    key = Object.keys(list_score)[i]
+                    data = list_score[key];
+                    
+                    nama = data.name
+                    jawab_punya = data.pilihan
                     pilihanText = data.pilihanText
                     score = parseInt(data.score)
                     if (score > score_sem){
@@ -205,63 +227,89 @@
                     }
                     adj = parseInt(data.addj)
                     before = score-adj
+                    display = parseInt(data.display)
 
-                    $('#table-score tbody tr:last').after(`<tr>
-                        <td>${nama}</td>
-                        <td>${pilihanText}</td>
-                        <td>${before}</td>
-                    </tr>`);
+                    $(`.${key} td:nth-child(2)`).text(pilihanText);
                     await sleep(2000)
                     
-                    pid = $("#table-score tbody tr:last").find('td:eq(2)').text();
-                    if (adj < 0){
+                    score_realtime_before = $(`.${key} td:nth-child(3)`).text();
+                    score_realtime = score_realtime_before.split('(')[0].trim();
+                    
+                    if (display < 0){
                         
-                        hsa = `<p>${pid}<span class="red"> (${adj})</span></p>`
+                        hsa = `<p>${score_realtime}<span class="red"> (${display})</span></p>`
                         // hsa2 = `<p>${score}<span class="red">${adj}</span></p>`
                     }
-                    else if (adj == 0){
+                    else if (display == 0){
                        
-                        hsa = `<p>${pid}<span> (${adj}) </span></p>`
-                        // hsa2 = `<p>${score}<span>${adj}</span></p>`
+                        hsa = `<p>${score_realtime}<span> (${display}) </span></p>`
+
+                        score_orang_lain = $(`.${jawab_punya} td:nth-child(3)`).text();
+                        
+                       
+                        score = score_orang_lain.split('(')[0].trim();
+                    
+                        hsa_org_lain = `<p>${score}<span class="green"> (+40)</span></p>`
+                        $(`.${jawab_punya} td:nth-child(3)`).html(hsa_org_lain);
+
                     } else {
                         
-                        hsa = `<p>${pid}<span class="green"> (+${adj})</span></p>`
+                        hsa = `<p>${score_realtime}<span class="green"> (+${display})</span></p>`
                         // hsa2 = `<p>${score}<span class="green">+${adj}</span></p>`
                     }
+
+                    //$("#table-score tbody tr:last").find('td:eq(2)').html(hsa);
+                    $(`.${key} td:nth-child(3)`).html(hsa);
                     
-                    $("#table-score tbody tr:last").find('td:eq(2)').html(hsa);
                     await sleep(2000)
                            
                     var j = 1
-                    for (j = 1 ; j <= Math.abs(adj) ; j++){
-                        if (adj > 0){
-                            helper = parseInt(pid) + j
+                    for (j = 1 ; j <= Math.abs(display) ; j++){
+                        if (display > 0){
+                            helper = parseInt(score_realtime) + j
                             
-                            hsa2 = `<p>${helper}<span class="green"> (+${adj - j})</span></p>`
-                        $("#table-score tbody tr:last").find('td:eq(2)').html(hsa2);
+                            hsa2 = `<p>${helper}<span class="green"> (+${display - j})</span></p>`
+                        //$("#table-score tbody tr:last").find('td:eq(2)').html(hsa2);
+                        $(`.${key} td:nth-child(3)`).html(hsa2);
                         } else {
-                            helper = parseInt(pid) - j
+                            helper = parseInt(score_realtime) - j
                             
-                            hsa2 = `<p>${helper}<span class="red"> (${adj + j})</span></p>`
-                        $("#table-score tbody tr:last").find('td:eq(2)').html(hsa2);
+                            hsa2 = `<p>${helper}<span class="red"> (${display + j})</span></p>`
+                        //$("#table-score tbody tr:last").find('td:eq(2)').html(hsa2);
+                        $(`.${key} td:nth-child(3)`).html(hsa2);
                         }
                         await sleep(15)
                     
                     }
+
+                    if ( !(jawab_punya == "true" || jawab_punya == undefined)){
+                        var j = 1
+                        
+                        for (j = 1 ; j <= 40 ; j++){
+                         
+                            helper = parseInt(score) + j
+                                
+                            hsa_org_lain = `<p>${helper}<span class="green"> (+${40 - j})</span></p>`
+                            $(`.${jawab_punya} td:nth-child(3)`).html(hsa_org_lain);
+                            await sleep(15)
+                            
                     
-                    await sleep(2000)
+                        }
+                    }
+                    
+                    await sleep(3000)
                    
                 }
                 
 
-                await sleep(5000); 
+                await sleep(3000); 
                 if (ronde == 4) {
-                    await sleep(3000)
+                    await sleep(1000)
                     $("#info").text("PEMENANGNYA ADALAH " + pemenang)
                     $("#info").addClass("big-text")
                     $("#score").addClass("remove")
 
-                    await sleep(8000)
+                    await sleep(4000)
                 }
                 
                 if (data_peserta[myId].host){
@@ -368,12 +416,12 @@
             })
         if (!query.spectate) {
             function myFunction(orang,buttonId) {
-                console.log(orang)
+                
                 var assign_peserta= Object.keys(data_peserta).length;
-                console.log(assign_peserta)
+            
                 for (i = 0 ; i < assign_peserta+2 ; i++){
                     word = "button" + i
-                    console.log(word)
+                    
                     if (word == buttonId){
                         $('#'+word).addClass("button-choose")
                     } else {
