@@ -480,6 +480,33 @@ config.sean = {
         a4: "Llanfairpwllgwyngyllgogerychwyrndrobwlll",
         f4: "KwazakwazakKazkkzkkk",
         q4: "Tahukah anda? ..... , adalah nama sebuah desa di Wales Utara, Inggris. Sulit dibaca bukan?"
+      },
+      33: { a1: "20%",
+         f1: "3%",
+         q1: "The Amazon Rainforest Produces ___ of the World’s Oxygen",   
+         a2: "3x -4y+32 = 0",
+         f2: "Tidak ada persamaan garis singgung",
+         q2: "Diketahui sebuah lingkaran melalui titik 0(0, 0), A(0, 8), dan B(6, 0). Persamaan garis singgung pada lingkaran tersebut di titik A adalah ….", 
+         a3: "The Mariana Trench",
+         f3: "Lake Michigan",
+         q3: " ... is the Deepest Point on Earth Located in the Pacific Ocean, it plunges about 10,984 meters (36,037 feet). If Mount Everest were placed inside, its peak would still be over a mile underwater.",
+         a4: "The Great Wall",
+         f4: "The Burj Khalifak",
+         q4: "the World’s Largest Man-Made Structure, Stretching over 21,000 kilometers"        
+      },
+      34: {
+         a1: "20%",
+         f1: "3%",
+         q1: "The Amazon Rainforest Produces ___ of the World’s Oxygen",   
+         a2: "3x -4y+32 = 0",
+         f2: "Tidak ada persamaan garis singgung",
+         q2: "Diketahui sebuah lingkaran melalui titik 0(0, 0), A(0, 8), dan B(6, 0). Persamaan garis singgung pada lingkaran tersebut di titik A adalah ….", 
+         a3: "The Mariana Trench",
+         f3: "Lake Michigan",
+         q3: " ... is the Deepest Point on Earth Located in the Pacific Ocean, it plunges about 10,984 meters (36,037 feet). If Mount Everest were placed inside, its peak would still be over a mile underwater.",
+         a4: "The Great Wall",
+         f4: "The Burj Khalifak",
+         q4: "the World’s Largest Man-Made Structure, Stretching over 21,000 kilometers"  
       }
    }
 };

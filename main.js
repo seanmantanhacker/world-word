@@ -25,8 +25,8 @@ const set_question = config.set_question
 function getRandomNumber(min, max) {
    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
-var randomNumber = getRandomNumber(1, 32);
+size_q = Object.keys(set_question).length;
+var randomNumber = getRandomNumber(1, size_q);
 var set_soal = set_question[randomNumber]
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -469,7 +469,7 @@ app.get('/', (req, res) => {
     socket.on('game start', (msg) => {
       i = 5;
       state.gameStart = true
-      randomNumber = getRandomNumber(1, 32);
+      randomNumber = getRandomNumber(1,  Object.keys(set_question).length);
       set_soal = set_question[randomNumber]
 
       myvar = setInterval(function(){ 
