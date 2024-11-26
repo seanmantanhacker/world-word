@@ -72,7 +72,8 @@ app.get('/', (req, res) => {
       peserta: peserta,
       setQuestion : set_soal,
       query : helper_query,
-      state:state
+      state:state,
+      max_question: size_q
     });
  })
 

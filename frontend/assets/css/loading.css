@@ -23,6 +23,7 @@ body, html {
   .bg-main {
     /* The image used */
     background-color: rgb(209, 229, 229);
+    background-image: linear-gradient(to bottom right, red, yellow);
   
     /* Full height */
     height: 100%;
@@ -153,8 +154,9 @@ body, html {
   }
 
   #score{
-    background-color: rgba(180, 99, 182, 0.855);
+    background-color: rgba(201, 229, 229, 0.578);
     color: rgb(32, 24, 14);
+    font-weight: 900;
   }
 
   #info {

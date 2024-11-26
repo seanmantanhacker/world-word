@@ -130,7 +130,7 @@
             } );
 
             this.socket.on( 'timer', function (msg) {
-                console.log(msg)
+                
                 $( "#timer" ).removeClass( "hidden" )
                 $( "#timer" ).text(msg)
                 
@@ -400,7 +400,7 @@
 
                 $("#send").on( "click", function() {   
                     send_kecohan =  $(".kecohan").val()
-                    console.log(send_kecohan)   
+                    
                     data = {
                         from : myId,
                         kecohan : send_kecohan

@@ -495,18 +495,46 @@ config.sean = {
          q4: "the World’s Largest Man-Made Structure, Stretching over 21,000 kilometers"        
       },
       34: {
-         a1: "20%",
-         f1: "3%",
-         q1: "The Amazon Rainforest Produces ___ of the World’s Oxygen",   
-         a2: "3x -4y+32 = 0",
-         f2: "Tidak ada persamaan garis singgung",
-         q2: "Diketahui sebuah lingkaran melalui titik 0(0, 0), A(0, 8), dan B(6, 0). Persamaan garis singgung pada lingkaran tersebut di titik A adalah ….", 
-         a3: "The Mariana Trench",
-         f3: "Lake Michigan",
-         q3: " ... is the Deepest Point on Earth Located in the Pacific Ocean, it plunges about 10,984 meters (36,037 feet). If Mount Everest were placed inside, its peak would still be over a mile underwater.",
-         a4: "The Great Wall",
-         f4: "The Burj Khalifak",
-         q4: "the World’s Largest Man-Made Structure, Stretching over 21,000 kilometers"  
+         a1: "Tulang Sanggurdi",
+         f1: "Humerus",
+         q1: "the smallest bone in the human body",   
+         a2: "Lukas",
+         f2: "Wahyu",
+         q2: "What is the longest book in the New Testament", 
+         a3: "Jeremiah",
+         f3: "daniel",
+         q3: "Which prophet is known as the 'weeping prophet' ?",
+         a4: "Shalmaneser V",
+         f4: "Herodes VI",
+         q4: "Siapakah nama raja yang menghancurkan kerajaan utara Israel dan membawa rakyatnya ke pembuangan"  
+      },
+      35: {
+         a1: "Oymyakon",
+         f1: "Sitenka",
+         q1: "What is the name of the village in Russia that holds the record for the coldest temperature ever recorded in a permanently inhabited place on Earth",   
+         a2: "quahog clam",
+         f2: "Black Shark",
+         q2: "Which animal is known to have the longest confirmed lifespan", 
+         a3: "93 billion light-years",
+         f3: "2134 Quart Light Years",
+         q3: "What is the size of the observable universe, in light-years",
+         a4: "Papua Nugini",
+         f4: "Meksiko",
+         q4: "What is the most linguistically diverse country in the world"
+      },
+      36: {
+         a1: "Penaklukan",
+         f1: "Kelaparan",
+         q1: "Ada empat penunggang kuda yang disebutkan dalam Wahyu 6, apa simbol untuk kuda putih",   
+         a2: "Maher-syalal Hash-baz",
+         f2: "Sisera Herib",
+         q2: "Siapakah nama anak nabi Yesaya yang memiliki arti 'cepatlah merampas, segera ambil jarahan'?", 
+         a3: "Manasye",
+         f3: "Lord Samuel",
+         q3: "Siapakah nama raja Yehuda yang menjadi raja pada usia 12 tahun?",
+         a4: "Yizreel",
+         f4: "Lo-Ammi",
+         q4: "Siapakah nama putra Hosea yang melambangkan penghakiman Allah terhadap Israel"
       }
    }
 };
