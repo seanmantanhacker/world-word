@@ -6,7 +6,7 @@ body, html {
   
   .bg {
     /* The image used */
-    background-image: url("/image/loading.jpg");
+    background-image: url("/image/Loading_screen.png");
   
     /* Full height */
     height: 100%;
