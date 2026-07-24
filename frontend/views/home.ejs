@@ -9,6 +9,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/home.css" />
     <audio id="music1" loop >
         <source src="/music/warrior_30sec-intro-192837.mp3">
@@ -17,31 +20,41 @@
     
     </head>
     <body class="bg2">
-        <div class="container">
+        <div class="overlay"></div>
+        <div class="main-wrapper">
+          <div class="container">
             <div class="panel panel-default center">
-              <div class="panel-heading ">
-                <h3 class="panel-title">The World most fascinating word games<br><br>Game Lobby</h3> 
+              <div class="panel-heading">
+                <div class="badge-title">GLOBAL MULTIPLAYER</div>
+                <h1 class="game-title">WORLD WORD</h1>
+                <p class="game-subtitle">The World's Most Fascinating Sci-Fi Word Game</p>
+                <div class="lobby-header">
+                  <span class="lobby-label">GAME LOBBY</span>
+                </div>
                 <h2 id="timer" class="hidden"></h2>
               </div>
-              <div id="list-group" class="center">
-                
+              <div class="players-card">
+                <div class="card-header-sm">JOINED PLAYERS</div>
+                <div id="list-group" class="center">
                     <% for (i =0 ; i < Object.keys(peserta).length; i++) { %>
                         <button class="center-button"><%=peserta[Object.keys(peserta)[i]].name;%></button>
-                
                     <% }%>
-                    
-                
+                </div>
               </div>
             </div>
-            <div class="username center">
-                <label class="panel-body" for="uname">Username</label>
-                <input class="form-control" type="text" placeholder="Enter Username" name="uname" required>
-             </div>
-             <div class="center">
-                <button id="join-button" class="center-button2" type="button">Join Lobby !</button>
-                <button id="start-button" class="remove center-button2" type="button">START !</button>
-             </div>
-            
+            <div class="panel-action-card">
+              <div class="username center">
+                <label class="panel-body" for="uname">ENTER YOUR CALLSIGN</label>
+                <div class="input-glow-wrapper">
+                  <input class="form-control" type="text" placeholder="Callsign / Username..." name="uname" autocomplete="off" required>
+                </div>
+              </div>
+              <div class="button-group center">
+                <button id="join-button" class="center-button2 btn-glow-cyan" type="button">JOIN LOBBY</button>
+                <button id="start-button" class="remove center-button2 btn-glow-purple" type="button">START GAME</button>
+              </div>
+            </div>
+          </div>
         </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     
