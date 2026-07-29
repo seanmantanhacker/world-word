@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Game Loading</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
@@ -144,7 +144,10 @@
                 fase = msg.fase
                 if (fase == 4 ){
                     audio2.pause()
-                    audio3.play()
+                    let playPromise3 = audio3.play();
+                    if (playPromise3 !== undefined) {
+                        playPromise3.catch(e => console.log("Audio 3 play prevented by iOS."));
+                    }
                 }
                 $("#question").text(message)
 
@@ -339,7 +342,18 @@
          $( document ).ready(function() {
 
             //INIT
-            audio2.play()
+            let playPromise2 = audio2.play();
+            if (playPromise2 !== undefined) {
+                playPromise2.catch(error => {
+                    let unlockAudio = function() {
+                        audio2.play();
+                        document.body.removeEventListener('click', unlockAudio);
+                        document.body.removeEventListener('touchstart', unlockAudio);
+                    };
+                    document.body.addEventListener('click', unlockAudio);
+                    document.body.addEventListener('touchstart', unlockAudio);
+                });
+            }
             var i = 0;
             
             if (i == 0) {
