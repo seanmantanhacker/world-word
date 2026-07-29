@@ -46,6 +46,7 @@ var state = {
    fase : 0
 
 }
+let currentTimer = null;
 
 app.get('/', (req, res) => {
    res.render('home', {
@@ -110,12 +111,13 @@ app.get('/', (req, res) => {
       }
       state.fase = 1
       io.emit('receive soal', message);
-      i = TIME_SEND_KECOHAN ;
-      myvar = setInterval(function(){ 
+      if (currentTimer) clearInterval(currentTimer);
+      let i = TIME_SEND_KECOHAN ;
+      currentTimer = setInterval(function(){ 
          io.emit('timer',i );
          i--;
          if (i< 0){
-            clearInterval(myvar);
+            clearInterval(currentTimer);
             arrayOfAnswer = []
             helper =[]
             Object.keys(peserta).forEach(key => {
@@ -135,11 +137,11 @@ app.get('/', (req, res) => {
             
             io.emit('receive kecohan', arrayOfAnswer);
             i = TIME_SEND_ANSWER;
-            myvar2 = setInterval(function(){ 
+            currentTimer = setInterval(function(){ 
                io.emit('timer',i );
                i--;
                if (i< 0){
-                  clearInterval(myvar2);
+                  clearInterval(currentTimer);
                   
                   Object.keys(peserta).forEach(key => {   
                      peserta[key].addj = 0  
@@ -204,12 +206,13 @@ app.get('/', (req, res) => {
       }
       state.fase = 2
       io.emit('receive soal', message);
-      i = TIME_SEND_KECOHAN ;
-      myvar = setInterval(function(){ 
+      if (currentTimer) clearInterval(currentTimer);
+      let i = TIME_SEND_KECOHAN ;
+      currentTimer = setInterval(function(){ 
          io.emit('timer',i );
          i--;
          if (i< 0){
-            clearInterval(myvar);
+            clearInterval(currentTimer);
             arrayOfAnswer = []
             helper =[]
             Object.keys(peserta).forEach(key => {
@@ -231,11 +234,11 @@ app.get('/', (req, res) => {
             
             io.emit('receive kecohan', arrayOfAnswer);
             i = TIME_SEND_ANSWER;
-            myvar2 = setInterval(function(){ 
+            currentTimer = setInterval(function(){ 
                io.emit('timer',i );
                i--;
                if (i< 0){
-                  clearInterval(myvar2);
+                  clearInterval(currentTimer);
                   
                   Object.keys(peserta).forEach(key => {   
                      peserta[key].addj = 0  
@@ -302,12 +305,13 @@ app.get('/', (req, res) => {
       }
       state.fase = 3
       io.emit('receive soal', message);
-      i = TIME_SEND_KECOHAN ;
-      myvar = setInterval(function(){ 
+      if (currentTimer) clearInterval(currentTimer);
+      let i = TIME_SEND_KECOHAN ;
+      currentTimer = setInterval(function(){ 
          io.emit('timer',i );
          i--;
          if (i< 0){
-            clearInterval(myvar);
+            clearInterval(currentTimer);
             arrayOfAnswer = []
             helper =[]
             Object.keys(peserta).forEach(key => {
@@ -328,11 +332,11 @@ app.get('/', (req, res) => {
             
             io.emit('receive kecohan', arrayOfAnswer);
             i = TIME_SEND_ANSWER;
-            myvar2 = setInterval(function(){ 
+            currentTimer = setInterval(function(){ 
                io.emit('timer',i );
                i--;
                if (i< 0){
-                  clearInterval(myvar2);
+                  clearInterval(currentTimer);
                   
                   Object.keys(peserta).forEach(key => {   
                      peserta[key].addj = 0  
@@ -396,12 +400,13 @@ app.get('/', (req, res) => {
       }
       state.fase = 4
       io.emit('receive soal', message);
-      i = TIME_SEND_KECOHAN ;
-      myvar = setInterval(function(){ 
+      if (currentTimer) clearInterval(currentTimer);
+      let i = TIME_SEND_KECOHAN ;
+      currentTimer = setInterval(function(){ 
          io.emit('timer',i );
          i--;
          if (i< 0){
-            clearInterval(myvar);
+            clearInterval(currentTimer);
             arrayOfAnswer = []
             helper =[]
             Object.keys(peserta).forEach(key => {
@@ -422,11 +427,11 @@ app.get('/', (req, res) => {
             
             io.emit('receive kecohan', arrayOfAnswer);
             i = TIME_SEND_ANSWER;
-            myvar2 = setInterval(function(){ 
+            currentTimer = setInterval(function(){ 
                io.emit('timer',i );
                i--;
                if (i< 0){
-                  clearInterval(myvar2);
+                  clearInterval(currentTimer);
                   
                   Object.keys(peserta).forEach(key => {   
                      peserta[key].addj = 0  
@@ -510,16 +515,17 @@ app.get('/', (req, res) => {
     });
 
     socket.on('game start', (msg) => {
-      i = 5;
+      if (currentTimer) clearInterval(currentTimer);
+      let i = 5;
       state.gameStart = true
       randomNumber = getRandomNumber(1,  Object.keys(set_question).length);
       set_soal = set_question[randomNumber]
 
-      myvar = setInterval(function(){ 
+      currentTimer = setInterval(function(){ 
          io.emit('timer game start',i );
          i--;
          if (i< 0){
-            clearInterval(myvar);
+            clearInterval(currentTimer);
          }
       },1000) //logs hi every second
 
