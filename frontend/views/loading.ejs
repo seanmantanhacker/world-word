@@ -233,7 +233,7 @@
                     display = parseInt(data.display)
 
                     $(`.${key} td:nth-child(2)`).text(pilihanText);
-                    await sleep(2000)
+                    await sleep(1000)
                     
                     score_realtime_before = $(`.${key} td:nth-child(3)`).text();
                     score_realtime = score_realtime_before.split('(')[0].trim();
@@ -264,7 +264,7 @@
                     //$("#table-score tbody tr:last").find('td:eq(2)').html(hsa);
                     $(`.${key} td:nth-child(3)`).html(hsa);
                     
-                    await sleep(2000)
+                    await sleep(1000)
                            
                     var j = 1
                     for (j = 1 ; j <= Math.abs(display) ; j++){
@@ -300,7 +300,7 @@
                         }
                     }
                     
-                    await sleep(3000)
+                    await sleep(2000)
                    
                 }
                 
