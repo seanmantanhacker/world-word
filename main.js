@@ -24,13 +24,13 @@ const TIME_SEND_ANSWER = 17;
 const SCORE_BETUL = 100;
 const SCORE_SALAH = -10;
 const SCORE_ORG = 40;
+const ROOM_EMPTY_GRACE_MS = 5 * 60 * 1000;
+const ROOM_CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no O/0/I/1, avoids ambiguity
 const set_question = config.set_question
 function getRandomNumber(min, max) {
    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 size_q = Object.keys(set_question).length;
-var randomNumber = getRandomNumber(1, size_q);
-var set_soal = set_question[randomNumber]
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -40,508 +40,341 @@ app.use(express.static(path.join(__dirname, '/frontend/assets')));
 app.use(express.json()); // must be included when use post request
 app.use(express.urlencoded({ extended: true })); //must be included when use post request
 
-var peserta = {}
-var state = {
-   gameStart : false,
-   fase : 0
+// rooms[code] = { peserta, state: {gameStart, fase}, currentTimer, set_soal, emptyTimer }
+var rooms = {}
 
+function generateRoomCode() {
+   let code = ""
+   for (let i = 0; i < 4; i++) {
+      code += ROOM_CODE_CHARS[Math.floor(Math.random() * ROOM_CODE_CHARS.length)]
+   }
+   return code
 }
-let currentTimer = null;
+
+function createRoom() {
+   let code = generateRoomCode()
+   while (rooms[code] != undefined) {
+      code = generateRoomCode()
+   }
+   const randomNumber = getRandomNumber(1, size_q)
+   rooms[code] = {
+      peserta: {},
+      state: {
+         gameStart: false,
+         fase: 0
+      },
+      currentTimer: null,
+      set_soal: set_question[randomNumber],
+      emptyTimer: null
+   }
+   scheduleRoomCleanup(code)
+   return code
+}
+
+function getRoom(roomId) {
+   return rooms[roomId]
+}
+
+function scheduleRoomCleanup(roomId) {
+   const room = rooms[roomId]
+   if (!room) return
+   if (room.emptyTimer) clearTimeout(room.emptyTimer)
+   room.emptyTimer = setTimeout(function () {
+      const r = rooms[roomId]
+      if (!r) return
+      const socketsInRoom = io.sockets.adapter.rooms.get(roomId)
+      if (!socketsInRoom || socketsInRoom.size === 0) {
+         if (r.currentTimer) clearInterval(r.currentTimer)
+         delete rooms[roomId]
+      }
+   }, ROOM_EMPTY_GRACE_MS)
+}
+
+function cancelRoomCleanup(roomId) {
+   const room = rooms[roomId]
+   if (room && room.emptyTimer) {
+      clearTimeout(room.emptyTimer)
+      room.emptyTimer = null
+   }
+}
 
 app.get('/', (req, res) => {
    res.render('home', {
-      peserta: peserta,
-      state : state
+      peserta: {},
+      state: { gameStart: false, fase: 0 },
+      roomId: null
     });
  })
 
- app.get('/loading', (req, res) => {
-   const query = req.query;
+ app.get('/create-room', (req, res) => {
+   const roomId = createRoom()
+   res.redirect('/room/' + roomId)
+ })
+
+ app.get('/room/:roomId', (req, res) => {
+   const roomId = req.params.roomId.toUpperCase()
+   const room = getRoom(roomId)
+   if (!room) {
+      res.status(404)
+      return res.render('404')
+   }
+   res.render('home', {
+      peserta: room.peserta,
+      state: room.state,
+      roomId: roomId
+    });
+ })
+
+ app.get('/room/:roomId/loading', (req, res) => {
+   const roomId = req.params.roomId.toUpperCase()
+   const room = getRoom(roomId)
+   if (!room) {
+      res.status(404)
+      return res.render('404')
+   }
+   const query = req.query
    var helper_query = {}
    if (query == undefined || Object.keys(query).length == 0){
       helper_query.spectate = false
    } else {
-      myId = query.id
-      if (peserta[myId] == undefined){ //Peserta tidak ter-registrasi maka spectate
+      const myId = query.id
+      if (room.peserta[myId] == undefined){ //Peserta tidak ter-registrasi maka spectate
          helper_query.spectate = true
       } else {
-         helper_query.spectate = false 
+         helper_query.spectate = false
       }
    }
-   
+
    res.render('loading', {
-      peserta: peserta,
-      setQuestion : set_soal,
+      peserta: room.peserta,
+      setQuestion : room.set_soal,
       query : helper_query,
-      state:state,
-      max_question: size_q
+      state: room.state,
+      max_question: size_q,
+      roomId: roomId
     });
  })
+
+ function answerTextOf(room, playerId) {
+   const p = room.peserta[playerId]
+   if (!p || p.answer == undefined || p.answer === "") {
+      return "Tidak mengisi"
+   }
+   return p.answer
+ }
+
+ function runFase(socket, faseNum) {
+   const roomId = socket.data.roomId
+   const room = getRoom(roomId)
+   if (!room) return
+
+   const soal = room.set_soal
+   const qKey = 'q' + faseNum
+   const aKey = 'a' + faseNum
+   const fKey = 'f' + faseNum
+
+   const message = {
+      msg: soal[qKey],
+      fase: faseNum
+   }
+   if (room.state.fase == faseNum) {
+      io.to(roomId).emit('receive soal', message);
+      return
+   }
+   room.state.fase = faseNum
+   io.to(roomId).emit('receive soal', message);
+   if (room.currentTimer) clearInterval(room.currentTimer);
+   let i = TIME_SEND_KECOHAN;
+   room.currentTimer = setInterval(function () {
+      io.to(roomId).emit('timer', i);
+      i--;
+      if (i < 0) {
+         clearInterval(room.currentTimer);
+         const arrayOfAnswer = []
+         Object.keys(room.peserta).forEach(key => {
+            arrayOfAnswer.push([answerTextOf(room, key), key])
+            if (faseNum > 1) {
+               // Clear any leftover vote from a previous round — not voting this
+               // round must show as "Tidak vote", not silently reuse an old pick.
+               room.peserta[key].pilihan = undefined
+            }
+         });
+         arrayOfAnswer.push([soal[aKey], "true"])
+         arrayOfAnswer.push([soal[fKey], "bot"])
+
+         io.to(roomId).emit('receive kecohan', arrayOfAnswer);
+         i = TIME_SEND_ANSWER;
+         room.currentTimer = setInterval(function () {
+            io.to(roomId).emit('timer', i);
+            i--;
+            if (i < 0) {
+               clearInterval(room.currentTimer);
+
+               Object.keys(room.peserta).forEach(key => {
+                  room.peserta[key].addj = 0
+                  const pilihan = room.peserta[key].pilihan
+                  if (pilihan == "true") {
+                     room.peserta[key].pilihanText = soal[aKey]
+                  } else if (pilihan == "bot") {
+                     room.peserta[key].pilihanText = soal[fKey]
+                  } else if (pilihan == undefined) {
+                     room.peserta[key].pilihanText = "Tidak vote"
+                  } else {
+                     room.peserta[key].pilihanText = answerTextOf(room, pilihan)
+                  }
+               });
+               Object.keys(room.peserta).forEach(key => {
+                  const pilihan = room.peserta[key].pilihan == undefined ? "bot" : room.peserta[key].pilihan
+
+                  if (pilihan == "true") {
+                     room.peserta[key].display = SCORE_BETUL
+                     room.peserta[key].score = room.peserta[key].score + SCORE_BETUL
+                     room.peserta[key].addj = room.peserta[key].addj + SCORE_BETUL
+
+                  } else if (pilihan == "bot") {
+                     room.peserta[key].display = SCORE_SALAH
+                     room.peserta[key].score = room.peserta[key].score + SCORE_SALAH
+                     room.peserta[key].addj = room.peserta[key].addj + SCORE_SALAH
+
+                  } else {
+                     room.peserta[pilihan].score = room.peserta[pilihan].score + SCORE_ORG
+                     room.peserta[pilihan].addj = room.peserta[pilihan].addj + SCORE_ORG
+                     room.peserta[key].display = 0
+                  }
+
+               });
+
+               const t = {
+                  msg: room.peserta,
+                  round: faseNum
+               }
+               io.to(roomId).emit('send score', t);
+
+            }
+         }, 1000) //logs hi every second
+      }
+   }, 1000) //logs hi every second
+ }
 
  io.on('connection', (socket) => {
 
    socket.on('start sesion',(msg )=>{
-      if (peserta[msg.sessionId] == undefined) {
+      const roomId = msg.roomId
+      const room = getRoom(roomId)
+      if (!room) {
          return
-      }else {
-         peserta[msg.sessionId]["socketid"] = socket.id 
       }
-      
+      // Also used by spectators (not present in room.peserta) so they still join
+      // the Socket.IO room and receive broadcasts.
+      if (room.peserta[msg.sessionId] != undefined) {
+         room.peserta[msg.sessionId]["socketid"] = socket.id
+      }
+      socket.data.roomId = roomId
+      socket.join(roomId)
+      cancelRoomCleanup(roomId)
    })
 
    socket.on('send question',(msg )=>{
-   
-      peserta[msg.from].answer = msg.kecohan
-
+      const room = getRoom(socket.data.roomId)
+      if (!room) return
+      room.peserta[msg.from].answer = msg.kecohan
    })
 
    socket.on('send answer',(msg )=>{
-      
-      peserta[msg.from].pilihan = msg.answer
+      const room = getRoom(socket.data.roomId)
+      if (!room) return
+      room.peserta[msg.from].pilihan = msg.answer
    })
 
-   socket.on('start fase 1',(msg )=>{
-      message = {
-         msg : set_soal.q1,
-         fase : 1
-      }
-      if (state.fase == 1){
-         io.emit('receive soal', message); 
-         return
-      }
-      state.fase = 1
-      io.emit('receive soal', message);
-      if (currentTimer) clearInterval(currentTimer);
-      let i = TIME_SEND_KECOHAN ;
-      currentTimer = setInterval(function(){ 
-         io.emit('timer',i );
-         i--;
-         if (i< 0){
-            clearInterval(currentTimer);
-            arrayOfAnswer = []
-            helper =[]
-            Object.keys(peserta).forEach(key => {
-               
-               helper.push(peserta[key].answer)
-               helper.push(key)
-               arrayOfAnswer.push(helper)
-               helper = []
-        
-            });
-            helper.push(set_soal.a1,"true")
-            arrayOfAnswer.push(helper)
-            helper = []
-            helper.push(set_soal.f1,"bot")
-            arrayOfAnswer.push(helper)
-            helper=[]
-            
-            io.emit('receive kecohan', arrayOfAnswer);
-            i = TIME_SEND_ANSWER;
-            currentTimer = setInterval(function(){ 
-               io.emit('timer',i );
-               i--;
-               if (i< 0){
-                  clearInterval(currentTimer);
-                  
-                  Object.keys(peserta).forEach(key => {   
-                     peserta[key].addj = 0  
-                     pilihan = peserta[key].pilihan
-                     if (pilihan == "true"){
-                        peserta[key].pilihanText = set_soal.a1 
-                     } else if (pilihan == "bot"){
-                        peserta[key].pilihanText = set_soal.f1
-                     } else {
-                        if (peserta[pilihan] == undefined){
-                           peserta[key].pilihanText = "Tidak mengisi"
-                        } else {
-                           peserta[key].pilihanText = peserta[pilihan].answer
-                        }
-                        
-                     }
-                  });
-                  Object.keys(peserta).forEach(key => {
-                     
-                     
-                     pilihan = peserta[key].pilihan == undefined ? "bot" : peserta[key].pilihan
-               
-                     if (pilihan == "true"){
-                        peserta[key].display = SCORE_BETUL
-                        peserta[key].score = peserta[key].score + SCORE_BETUL
-                        peserta[key].addj = peserta[key].addj + SCORE_BETUL
-                        
-                     } else if (pilihan == "bot") {
-                        peserta[key].display = SCORE_SALAH
-                        peserta[key].score = peserta[key].score + SCORE_SALAH
-                        peserta[key].addj = peserta[key].addj + SCORE_SALAH
-                        
-                     } else {
-                        peserta[pilihan].score = peserta[pilihan].score + SCORE_ORG
-                        peserta[pilihan].addj = peserta[pilihan].addj + SCORE_ORG
-                        peserta[key].display = 0
-                     }
-                     
-                  });
-                  
-                  t = {
-                     msg : peserta,
-                     round : 1
-                  }
-                  io.emit('send score', t);
-                  
-               }
-            },1000) //logs hi every second
-         }
-      },1000) //logs hi every second
+   for (let n = 1; n <= 4; n++) {
+      socket.on('start fase ' + n, () => runFase(socket, n))
+   }
 
-   })
-
-   socket.on('start fase 2',(msg )=>{
-      message = {
-         msg : set_soal.q2,
-         fase : 2
-      }
-      if (state.fase == 2){
-         io.emit('receive soal', message); 
-         return
-      }
-      state.fase = 2
-      io.emit('receive soal', message);
-      if (currentTimer) clearInterval(currentTimer);
-      let i = TIME_SEND_KECOHAN ;
-      currentTimer = setInterval(function(){ 
-         io.emit('timer',i );
-         i--;
-         if (i< 0){
-            clearInterval(currentTimer);
-            arrayOfAnswer = []
-            helper =[]
-            Object.keys(peserta).forEach(key => {
-               
-               helper.push(peserta[key].answer)
-               helper.push(key)
-               arrayOfAnswer.push(helper)
-               helper = []
-               peserta[key].pilihan = "bot"
-        
-            });
-            helper.push(set_soal.a2,"true")
-            arrayOfAnswer.push(helper)
-            helper = []
-            helper.push(set_soal.f2,"bot")
-            arrayOfAnswer.push(helper)
-            helper=[]
-
-            
-            io.emit('receive kecohan', arrayOfAnswer);
-            i = TIME_SEND_ANSWER;
-            currentTimer = setInterval(function(){ 
-               io.emit('timer',i );
-               i--;
-               if (i< 0){
-                  clearInterval(currentTimer);
-                  
-                  Object.keys(peserta).forEach(key => {   
-                     peserta[key].addj = 0  
-                     pilihan = peserta[key].pilihan
-                     if (pilihan == "true"){
-                        peserta[key].pilihanText = set_soal.a2 
-                     } else if (pilihan == "bot"){
-                        peserta[key].pilihanText = set_soal.f2
-                     } else {
-                        
-                        if (peserta[pilihan] == undefined){
-                           peserta[key].pilihanText = "Tidak mengisi"
-                        } else {
-                           peserta[key].pilihanText = peserta[pilihan].answer
-                        }
-                     }
-                  });
-                  Object.keys(peserta).forEach(key => {
-                     
-               
-                     pilihan = peserta[key].pilihan == undefined ? "bot" : peserta[key].pilihan
-                  
-
-                     if (pilihan == "true"){
-                        peserta[key].display = SCORE_BETUL
-                        peserta[key].score = peserta[key].score + SCORE_BETUL
-                        peserta[key].addj = peserta[key].addj + SCORE_BETUL
-                        
-                     } else if (pilihan == "bot") {
-                        peserta[key].display = SCORE_SALAH
-                        peserta[key].score = peserta[key].score + SCORE_SALAH
-                        peserta[key].addj = peserta[key].addj + SCORE_SALAH
-                        
-                     } else {
-                        peserta[pilihan].score = peserta[pilihan].score + SCORE_ORG
-                        peserta[pilihan].addj = peserta[pilihan].addj + SCORE_ORG
-                        peserta[key].display = 0
-                     }
-              
-                  });
-
-                  t = {
-                     msg : peserta,
-                     round : 2
-                  }
-
-                  io.emit('send score', t);
-                  
-               }
-            },1000) //logs hi every second
-         }
-      },1000) //logs hi every second
-
-   })
-
-   socket.on('start fase 3',(msg )=>{
-      message = {
-         msg : set_soal.q3,
-         fase : 3
-      }
-      if (state.fase == 3){
-         io.emit('receive soal', message); 
-         return
-      }
-      state.fase = 3
-      io.emit('receive soal', message);
-      if (currentTimer) clearInterval(currentTimer);
-      let i = TIME_SEND_KECOHAN ;
-      currentTimer = setInterval(function(){ 
-         io.emit('timer',i );
-         i--;
-         if (i< 0){
-            clearInterval(currentTimer);
-            arrayOfAnswer = []
-            helper =[]
-            Object.keys(peserta).forEach(key => {
-               
-               helper.push(peserta[key].answer)
-               helper.push(key)
-               arrayOfAnswer.push(helper)
-               helper = []
-               peserta[key].pilihan = "bot"
-        
-            });
-            helper.push(set_soal.a3,"true")
-            arrayOfAnswer.push(helper)
-            helper = []
-            helper.push(set_soal.f3,"bot")
-            arrayOfAnswer.push(helper)
-            helper=[]
-            
-            io.emit('receive kecohan', arrayOfAnswer);
-            i = TIME_SEND_ANSWER;
-            currentTimer = setInterval(function(){ 
-               io.emit('timer',i );
-               i--;
-               if (i< 0){
-                  clearInterval(currentTimer);
-                  
-                  Object.keys(peserta).forEach(key => {   
-                     peserta[key].addj = 0  
-                     pilihan = peserta[key].pilihan
-                     if (pilihan == "true"){
-                        peserta[key].pilihanText = set_soal.a3
-                     } else if (pilihan == "bot"){
-                        peserta[key].pilihanText = set_soal.f3
-                     } else {
-                        
-                        if (peserta[pilihan] == undefined){
-                           peserta[key].pilihanText = "Tidak mengisi"
-                        } else {
-                           peserta[key].pilihanText = peserta[pilihan].answer
-                        }
-                     }
-                  });
-                  Object.keys(peserta).forEach(key => {
-               
-                     pilihan = peserta[key].pilihan == undefined ? "bot" : peserta[key].pilihan
-                     if (pilihan == "true"){
-                        peserta[key].display = SCORE_BETUL
-                        peserta[key].score = peserta[key].score + SCORE_BETUL
-                        peserta[key].addj = peserta[key].addj + SCORE_BETUL
-                        
-                     } else if (pilihan == "bot") {
-                        peserta[key].display = SCORE_SALAH
-                        peserta[key].score = peserta[key].score + SCORE_SALAH
-                        peserta[key].addj = peserta[key].addj + SCORE_SALAH
-                        
-                     } else {
-                        peserta[pilihan].score = peserta[pilihan].score + SCORE_ORG
-                        peserta[pilihan].addj = peserta[pilihan].addj + SCORE_ORG
-                        peserta[key].display = 0
-                     }
-              
-                  });
-
-                  t = {
-                     msg : peserta,
-                     round : 3
-                  }
-
-                  io.emit('send score', t);
-                  
-               }
-            },1000) //logs hi every second
-         }
-      },1000) //logs hi every second
-
-   })
-
-   socket.on('start fase 4',(msg )=>{
-      message = {
-         msg : set_soal.q4,
-         fase : 4
-      }
-      if (state.fase == 4){
-         io.emit('receive soal', message); 
-         return
-      }
-      state.fase = 4
-      io.emit('receive soal', message);
-      if (currentTimer) clearInterval(currentTimer);
-      let i = TIME_SEND_KECOHAN ;
-      currentTimer = setInterval(function(){ 
-         io.emit('timer',i );
-         i--;
-         if (i< 0){
-            clearInterval(currentTimer);
-            arrayOfAnswer = []
-            helper =[]
-            Object.keys(peserta).forEach(key => {
-               
-               helper.push(peserta[key].answer)
-               helper.push(key)
-               arrayOfAnswer.push(helper)
-               helper = []
-               peserta[key].pilihan = "bot"
-        
-            });
-            helper.push(set_soal.a4,"true")
-            arrayOfAnswer.push(helper)
-            helper = []
-            helper.push(set_soal.f4,"bot")
-            arrayOfAnswer.push(helper)
-            helper=[]
-            
-            io.emit('receive kecohan', arrayOfAnswer);
-            i = TIME_SEND_ANSWER;
-            currentTimer = setInterval(function(){ 
-               io.emit('timer',i );
-               i--;
-               if (i< 0){
-                  clearInterval(currentTimer);
-                  
-                  Object.keys(peserta).forEach(key => {   
-                     peserta[key].addj = 0  
-                     pilihan = peserta[key].pilihan
-                     if (pilihan == "true"){
-                        peserta[key].pilihanText = set_soal.a4
-                     } else if (pilihan == "bot"){
-                        peserta[key].pilihanText = set_soal.f4
-                     } else {
-                        
-                        if (peserta[pilihan] == undefined){
-                           peserta[key].pilihanText = "Tidak mengisi"
-                        } else {
-                           peserta[key].pilihanText = peserta[pilihan].answer
-                        }
-                     }
-                  });
-                  Object.keys(peserta).forEach(key => {
-               
-                     pilihan = peserta[key].pilihan == undefined ? "bot" : peserta[key].pilihan
-                     if (pilihan == "true"){
-                        peserta[key].display = SCORE_BETUL
-                        peserta[key].score = peserta[key].score + SCORE_BETUL
-                        peserta[key].addj = peserta[key].addj + SCORE_BETUL
-                        
-                     } else if (pilihan == "bot") {
-                        peserta[key].display = SCORE_SALAH
-                        peserta[key].score = peserta[key].score + SCORE_SALAH
-                        peserta[key].addj = peserta[key].addj + SCORE_SALAH
-                        
-                     } else {
-                        peserta[pilihan].score = peserta[pilihan].score + SCORE_ORG
-                        peserta[pilihan].addj = peserta[pilihan].addj + SCORE_ORG
-                        peserta[key].display = 0
-                     }
-              
-                  });
-
-                  t = {
-                     msg : peserta,
-                     round : 4
-                  }
-
-                  io.emit('send score', t);
-                  
-               }
-            },1000) //logs hi every second
-         }
-      },1000) //logs hi every second
-
-   })
- 
    socket.on('join lobby', (msg) => {
-      var assign_id = Object.keys(peserta).length;
-      
+      const roomId = msg.roomId
+      const room = getRoom(roomId)
+      if (!room) return
+
+      socket.join(roomId)
+      socket.data.roomId = roomId
+      cancelRoomCleanup(roomId)
+
+      var assign_id = Object.keys(room.peserta).length;
+
       if (assign_id == 0){
-         peserta[msg.from] = {} 
-         peserta[msg.from]["name"] = msg.uname
-         peserta[msg.from]["host"] = true
-         peserta[msg.from]["score"] = 0
-         peserta[msg.from]["socketid"] = socket.id
-         
+         room.peserta[msg.from] = {}
+         room.peserta[msg.from]["name"] = msg.uname
+         room.peserta[msg.from]["host"] = true
+         room.peserta[msg.from]["score"] = 0
+         room.peserta[msg.from]["socketid"] = socket.id
+
       } else {
-         if (peserta[msg.from] != undefined && peserta[msg.from]["host"] == true){
+         var isHost
+         if (room.peserta[msg.from] != undefined && room.peserta[msg.from]["host"] == true){
             isHost = true
          } else {
             isHost = false
          }
-         peserta[msg.from] = {} 
-         peserta[msg.from]["name"] = msg.uname
-         peserta[msg.from]["host"] = isHost
-         peserta[msg.from]["score"] = 0
-         peserta[msg.from]["socketid"] = socket.id 
+         room.peserta[msg.from] = {}
+         room.peserta[msg.from]["name"] = msg.uname
+         room.peserta[msg.from]["host"] = isHost
+         room.peserta[msg.from]["score"] = 0
+         room.peserta[msg.from]["socketid"] = socket.id
       }
-      
-      data = {
-         peserta : peserta,
+
+      const data = {
+         peserta : room.peserta,
          assignUser : msg.from
       }
-      io.emit('join lobby', data);
+      io.to(roomId).emit('join lobby', data);
     });
 
     socket.on('game start', (msg) => {
-      if (currentTimer) clearInterval(currentTimer);
-      let i = 5;
-      state.gameStart = true
-      randomNumber = getRandomNumber(1,  Object.keys(set_question).length);
-      set_soal = set_question[randomNumber]
+      const roomId = socket.data.roomId
+      const room = getRoom(roomId)
+      if (!room) return
 
-      currentTimer = setInterval(function(){ 
-         io.emit('timer game start',i );
+      if (room.currentTimer) clearInterval(room.currentTimer);
+      let i = 5;
+      room.state.gameStart = true
+      const randomNumber = getRandomNumber(1, size_q);
+      room.set_soal = set_question[randomNumber]
+
+      room.currentTimer = setInterval(function(){
+         io.to(roomId).emit('timer game start',i );
          i--;
          if (i< 0){
-            clearInterval(currentTimer);
+            clearInterval(room.currentTimer);
          }
       },1000) //logs hi every second
 
     })
 
     socket.on('game finish', (msg) => {
-      peserta = {}
-      state = {
+      const roomId = socket.data.roomId
+      const room = getRoom(roomId)
+      if (!room) return
+
+      if (room.currentTimer) clearInterval(room.currentTimer);
+      room.peserta = {}
+      room.state = {
          gameStart : false,
          fase : 0
       }
+    })
 
+    socket.on('disconnect', () => {
+      const roomId = socket.data.roomId
+      if (!roomId) return
+      if (!getRoom(roomId)) return
+      const socketsInRoom = io.sockets.adapter.rooms.get(roomId)
+      if (!socketsInRoom || socketsInRoom.size === 0) {
+         scheduleRoomCleanup(roomId)
+      }
     })
 
  });
- 
+
 //Handle 404
 app.use(function (req, res, next) {
    if (req.accepts('html') && res.status(404)) {

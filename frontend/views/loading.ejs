@@ -94,8 +94,9 @@
         set_q = <%-JSON.stringify(setQuestion)%>;
         query = <%-JSON.stringify(query)%>;
         gameState = <%-JSON.stringify(state)%>;
+        roomId = <%-JSON.stringify(roomId)%>;
         if (gameState.gameStart == false) {
-            window.location.href = "/"
+            window.location.href = "/room/" + roomId
         }
         var myId = ""
         const my_uuid = localStorage.getItem("uuid");
@@ -193,7 +194,7 @@
                 list_score = msg.msg               
                 var length = Object.keys(list_score).length;
                 
-                pemenang = "TbC"   
+                pemenangList = []
                 score_sem = -999
 
                 //add here
@@ -229,7 +230,9 @@
                     score = parseInt(data.score)
                     if (score > score_sem){
                         score_sem = score
-                        pemenang = nama
+                        pemenangList = [nama]
+                    } else if (score == score_sem){
+                        pemenangList.push(nama)
                     }
                     adj = parseInt(data.addj)
                     before = score-adj
@@ -311,7 +314,7 @@
                 await sleep(3000); 
                 if (ronde == 4) {
                     await sleep(1000)
-                    $("#info").text("PEMENANGNYA ADALAH " + pemenang)
+                    $("#info").text("PEMENANGNYA ADALAH " + pemenangList.join(" & "))
                     $("#info").addClass("big-text")
                     $("#score").addClass("remove")
 
@@ -322,14 +325,14 @@
                     if (ronde == 4){
                         app.socket.emit('game finish', null);
                         //finish
-                        window.location.href = "/"
+                        window.location.href = "/room/" + roomId
                     }
                     mess = "start fase " + (ronde + 1)
                     app.socket.emit(mess, "aa");
                 } else {
                     if (ronde == 4){
                         //finish
-                        window.location.href = "/"
+                        window.location.href = "/room/" + roomId
                     }
                 }
                 
@@ -410,23 +413,22 @@
 
              //INIT
              console.log("kapan masuk sini sebeleum socket")
-             socket = app.connect()  
-               if (!query.spectate) {
-                app.socket.emit('start-session', {  sessionId: myId })
-          
+             socket = app.connect()
+             app.socket.emit('start sesion', { sessionId: myId, roomId: roomId })
 
-                $("#send").on( "click", function() {   
+               if (!query.spectate) {
+                $("#send").on( "click", function() {
                     send_kecohan =  $(".kecohan").val()
-                    
+
                     data = {
                         from : myId,
                         kecohan : send_kecohan
-                    }    
-                
+                    }
+
                     app.socket.emit('send question', data);
                     $(".kecohan").val("")
                     $(".kunci").val(send_kecohan)
-                    
+
                 });
                 }
             

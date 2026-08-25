@@ -28,11 +28,15 @@
                 <div class="badge-title">GLOBAL MULTIPLAYER</div>
                 <h1 class="game-title">WORLD WORD</h1>
                 <p class="game-subtitle">The World's Most Fascinating Sci-Fi Word Game</p>
+                <% if (roomId) { %>
                 <div class="lobby-header">
                   <span class="lobby-label">GAME LOBBY</span>
                 </div>
+                <div class="room-code-display">ROOM CODE: <span><%= roomId %></span></div>
                 <h2 id="timer" class="hidden"></h2>
+                <% } %>
               </div>
+              <% if (roomId) { %>
               <div class="players-card">
                 <div class="card-header-sm">JOINED PLAYERS</div>
                 <div id="list-group" class="center">
@@ -54,6 +58,24 @@
                 <button id="start-button" class="remove center-button2 btn-glow-purple" type="button">START GAME</button>
               </div>
             </div>
+            <% } else { %>
+              </div>
+            <div class="panel-action-card">
+              <div class="button-group center">
+                <button id="create-room-button" class="center-button2 btn-glow-cyan" type="button">CREATE ROOM</button>
+              </div>
+              <div class="username center">
+                <label class="panel-body" for="room-code">JOIN WITH A ROOM CODE</label>
+                <div class="input-glow-wrapper">
+                  <input class="form-control" type="text" placeholder="e.g. 7K2Q" name="room-code" id="room-code-input" autocomplete="off" maxlength="4">
+                </div>
+              </div>
+              <div class="button-group center">
+                <button id="join-room-button" class="center-button2 btn-glow-purple" type="button">JOIN ROOM</button>
+              </div>
+              <p id="join-room-error" class="hidden"></p>
+            </div>
+            <% } %>
           </div>
         </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -93,9 +115,10 @@
     var start_able = true
     var audio1 = document.getElementById("music1");
     var state = <%-JSON.stringify(state)%>;
-    if (state.gameStart){
+    var roomId = <%-JSON.stringify(roomId)%>;
+    if (roomId && state.gameStart){
         $("#join-button").addClass("hidden")
-        window.location.href = "/loading?id=" + myId
+        window.location.href = "/room/" + roomId + "/loading?id=" + myId
     }
     console.log(state.gameStart)
     var app = {
@@ -145,15 +168,15 @@
 
             this.socket.on( 'timer game start', function (msg) {
                 console.log(msg)
-                
+
                 $( "#timer" ).removeClass( "hidden" )
                 $( "#timer" ).text(msg)
-                
+
                 if (msg <= 0){
-                    window.location.href = "/loading"
+                    window.location.href = "/room/" + roomId + "/loading"
                 }
 
-                
+
             } );
         }
 } // app
@@ -162,25 +185,39 @@
     $( document ).ready(function() {
 
 
-        $( "#join-button" ).on( "click", function() {            
-            app.connect();           
+        $( "#join-button" ).on( "click", function() {
+            app.connect();
             uname=  $(".username").find('input[name="uname"]').val()
             data ={
                 from : myId,
-                uname : uname
-            }     
+                uname : uname,
+                roomId : roomId
+            }
             audio1.play();
             app.socket.emit('join lobby', data);
         });
 
-        $( "#start-button" ).on( "click", function() {       
+        $( "#start-button" ).on( "click", function() {
             if (start_able){
                 audio1.pause()
                 start_able = false
                 app.socket.emit('game start', "null");
-            }    
-            
-            
+            }
+
+
+        });
+
+        $( "#create-room-button" ).on( "click", function() {
+            window.location.href = "/create-room"
+        });
+
+        $( "#join-room-button" ).on( "click", function() {
+            var code = $( "#room-code-input" ).val().trim().toUpperCase()
+            if (code.length === 0){
+                $( "#join-room-error" ).removeClass("hidden").text("Enter a room code first.")
+                return
+            }
+            window.location.href = "/room/" + code
         });
     });
 

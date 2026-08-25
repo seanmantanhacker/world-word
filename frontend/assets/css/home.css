@@ -138,6 +138,28 @@ body, html {
   border-right: 2px solid var(--cyan-glow);
 }
 
+.room-code-display {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+  margin: 14px 0 4px;
+}
+
+.room-code-display span {
+  color: var(--purple-glow);
+  text-shadow: 0 0 10px var(--purple-glow);
+}
+
+#join-room-error {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--pink-accent);
+  text-align: center;
+  margin-top: 10px;
+}
+
 #timer {
   font-family: var(--font-heading);
   font-size: 3rem;
